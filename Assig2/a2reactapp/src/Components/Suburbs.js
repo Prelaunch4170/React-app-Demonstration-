@@ -20,12 +20,15 @@ const Suburbs = ({ }) => {
     }
 
     return (
-        <select value={selectedSelect} onChange={selectChanged}>
-            <option value="">--Select a suburb--</option>
+        <div class="form-floating mb-3">
+            <select class="form-select" id="selectSub" value={selectedSelect} onChange={selectChanged}>
+            <option value=""></option>
             {subData.map((suburb, index) => (
                 <option key={index} value={suburb}>{suburb}</option>
             ) )}
         </select>
+            <label for="selectSub">Select Suburb</label>
+        </div>
     )
 
 
