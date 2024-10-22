@@ -3,7 +3,7 @@ import '../App.css';
 import React, { useState } from 'react';
 import SHA256 from 'crypto-js/sha256';
 import Suburbs from '../Components/Suburbs'
-
+import Login from '../Components/SignIn'
 function App() {
   return (
     <div className="App">
@@ -17,7 +17,8 @@ function App() {
                       SHA256('hunter2').toString() //hash for hunter2 = f52fbd32b2b3b86ff88ef6c490628285f482af15ddcb29541f94bcf526a3f6c7
                   }
               </p>
-              <Suburbs/>
+              <Suburbs />
+              <Login />
         <a
           className="App-link"
           href="https://reactjs.org"

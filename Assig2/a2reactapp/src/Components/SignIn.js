@@ -1,29 +1,34 @@
 ﻿import React, { useState } from 'react'
-
+import SHA256 from 'crypto-js/sha256';
 
 const SignIn = ({ }) => {
     const [subData, setState] = useState([]);
 
     const [selectedSelect, setSelected] = useState(['']);
 
-    const [query, setQuery] = useState([]);
+    const [qUserName, setUserName] = useState('');
+    const [qPassword, setPassword] = useState('');
 
     React.useEffect(() => {
-        fetch(`http://localhost:5147/api/Login`)
+        console.log(`http://localhost:5147/api/Login?userName=${qUserName}&passwordHash=${qPassword}`);
+        fetch(`http://localhost:5147/api/Login?userName=${qUserName}&passwordHash=${qPassword}`)
             .then(response => response.json())
             .then(data => setState(data))
             .catch(err => {
                 console.log(err);
             });
+        console.log(subData);
     }, [])
     //https://bobbyhadz.com/blog/react-select-onchange
     
     function logInQuery(evt) {
         const userName = document.querySelector('[name="userName"]').value;
         const password = document.querySelector('[name="password"]').value;
-        password = SHA256(password)
-
-        setQuery([userName, password])
+        const hashedPassword = SHA256(password).toString();
+        console.log(hashedPassword);
+        console.log(subData);
+        setUserName(userName);
+        setPassword(hashedPassword);
     }
     return (
         <div className="row justify-content-start mb-3">
@@ -38,12 +43,9 @@ const SignIn = ({ }) => {
             </div>
 
             <button type="button" class="btn btn-primary btn-block mb-4" onClick={logInQuery}>Sign in</button>
-
         </div>
 
     )
-
-
 }
 
 export default SignIn
