@@ -3,31 +3,31 @@ import '../App.css';
 import React, { useState } from 'react';
 import SHA256 from 'crypto-js/sha256';
 import Suburbs from '../Components/Suburbs'
-import Login from '../Components/SignIn'
+import { Link, Outlet } from 'react-router-dom';
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-              <p id="test">
-                  Here's some test code for doing the SHA256 crypto stuff:
-                  <br/>
-                  hunter2 =&nbsp;
-                  {
-                      SHA256('hunter2').toString() //hash for hunter2 = f52fbd32b2b3b86ff88ef6c490628285f482af15ddcb29541f94bcf526a3f6c7
-                  }
-              </p>
-              <Suburbs />
-              <Login />
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn Reactstart
-        </a>
-      </header>
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+              <div class="container-fluid">
+                  <p class="navbar-brand">Navbar</p>
+
+                  <div class="collapse navbar-collapse" id="navbarNav">
+                      <ul class="navbar-nav">
+                          <li class="nav-item">
+                              <a class="nav-link active" aria-current="page" href="#">Home</a>
+                          </li>
+                          <li class="nav-item">
+                              <Link className="nav-link active" to="/Login"> Login</Link>
+                          </li>
+                          <li class="nav-item">
+                              <Link className="nav-link active" to="/Dash"> Dash</Link>
+                          </li>
+                      </ul>
+                  </div>
+              </div>
+
+          </nav>
+          <Outlet />
     </div>
   );
 }

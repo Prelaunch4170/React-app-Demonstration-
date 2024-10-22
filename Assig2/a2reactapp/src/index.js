@@ -6,18 +6,22 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Pages/LogIn';
+import Dash from './Pages/DashBoard';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <React.StrictMode>
+    
         <BrowserRouter>
-            <App />
+            
             <Routes>
                 <Route path="Login" element={<Login />} />
+                
+                <Route path="/" element={<App />}>
+                    <Route path="Dash" element={<Dash />} />
+                </Route>
             </Routes>
         </BrowserRouter>
     
-  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

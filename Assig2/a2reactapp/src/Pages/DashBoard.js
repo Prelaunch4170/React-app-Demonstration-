@@ -1,15 +1,15 @@
 ﻿import logo from '../logo.svg';
 import '../App.css';
 import React, { useState } from 'react';
-import Signin from '../Components/SignIn';
+import Suburbs from '../Components/Suburbs';
 
 
 
-function Login() {
+function DashBoard() {
     return (
-        <Signin/>
+        < Suburbs />
 
     );
 }
 
-export default Login;
+export default DashBoard;

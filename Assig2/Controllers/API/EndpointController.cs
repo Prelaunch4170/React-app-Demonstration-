@@ -31,7 +31,7 @@ namespace Assig2.Controllers.API
     {
         private readonly ExpiationsContext _context;
         ImmutableList<string> cameraCodes = ImmutableList.Create("M", "PAC", "I/section", "P2P", "Rail", "Mid Block");
-        static Dictionary<string, string> loginList = new Dictionary<string, string> { {"cool_fred", sha256hash("hunter2") }, { "large_marge", sha256hash("test123") } };
+        static Dictionary<string, string> loginList = new Dictionary<string, string> { {"cool_fred", sha256hash("hunter2") }, { "large_marge", sha256hash("test123") }, { "a", sha256hash("a") } };
         //hunter2 should map to -> f52fbd32b2b3b86ff88ef6c490628285f482af15ddcb29541f94bcf526a3f6c7
         //test123 should map to -> ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae
         //Try with this tool: https://emn178.github.io/online-tools/sha256.html
