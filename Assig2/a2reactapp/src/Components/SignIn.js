@@ -31,18 +31,28 @@ const SignIn = ({ }) => {
         setPassword(hashedPassword);
     }
     return (
-        <div className="row justify-content-start mb-3">
-            <div class="form-outline mb-4">
-                <input type="text" name="userName" id="userName" class="form-control" />
-                <label class="form-label" for="userName">User Name</label>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="text" name="userName" id="userName" class="form-control" />
+                        <label for="userName">User Name</label>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-outline mb-4">
-                <input type="password" id="password" name="password" class="form-control" />
-                <label class="form-label" for="password">Password</label>
+            <div class="row justify-content-center">
+                <div class="col-md-4 mb-3">
+                    <div class="form-floating">
+                        <input type="password" id="password" name="password" class="form-control" />
+                        <label for="password">Password</label>
+                    </div>
+                </div>
             </div>
 
-            <button type="button" class="btn btn-primary btn-block mb-4" onClick={logInQuery}>Sign in</button>
+            <div class="row justify-content-center mt-4">
+                <button type="button" class="btn btn-primary col-md-2" onClick={logInQuery}>Sign in</button>
+            </div>
         </div>
 
     )
