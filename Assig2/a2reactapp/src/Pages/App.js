@@ -17,12 +17,16 @@ function App() {
         }
     })
 
-
+    function SignOut() {
+        Cookies.remove('isSignedIn');
+        Cookies.remove('Name');
+        window.location.reload();
+    }
     return (
         <div className="App">
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
                 <div className="container-fluid">
-                    <p className="navbar-brand">Navbar</p>
+                    <p className="navbar-brand">Dash Board</p>
 
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
@@ -40,6 +44,11 @@ function App() {
                             <li className="nav-item ">
                                 <div className="nav-link" id="name">
 
+                                </div>
+                            </li>
+                            <li className="nav-item link">
+                                <div className="nav-link" onClick={SignOut}>
+                                    Log Out
                                 </div>
                             </li>
                         </ul>
