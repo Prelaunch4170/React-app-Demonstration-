@@ -1,6 +1,8 @@
 ﻿import React, {useEffect, useState } from 'react'
 import SHA256 from 'crypto-js/sha256';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+
 
 const SignIn = ({ }) => {
     /*const [subData, setState] = useState([]);*/
@@ -28,8 +30,10 @@ const SignIn = ({ }) => {
         fetch(`http://localhost:5147/api/Login?userName=${userName}&passwordHash=${hashedPassword}`)
             .then(response => response.json())
             .then(data => {
-                if (data === true) { // Assuming a successful login returns `true`
-                    navigate("/Dash");
+                if (data === true) {
+                    //navigate("/Dash");
+                    Cookies.set("isSignedIn", true, { expires: 1 });
+
                 } else {
                     console.log("Login failed:");
                     document.getElementById("Error_Text").innerHTML = "Incorrect Username or Password";

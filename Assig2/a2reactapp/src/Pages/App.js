@@ -4,7 +4,12 @@ import React, { useState } from 'react';
 import SHA256 from 'crypto-js/sha256';
 import Suburbs from '../Components/Suburbs'
 import { Link, Outlet } from 'react-router-dom';
+import Cookies from 'js-cookie';
+
 function App() {
+  
+
+
   return (
     <div className="App">
           <nav class="navbar navbar-expand-lg navbar-light bg-light">
