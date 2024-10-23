@@ -31,10 +31,8 @@ function App() {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <a className="nav-link active" aria-current="page" href="#">Home</a>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link active" to="/Dash"> Dash</Link>
+                                <Link className="nav-link active" to="/Dash"> Home</Link>
+                                
                             </li>
                           
                         </ul>
@@ -47,7 +45,7 @@ function App() {
                                 </div>
                             </li>
                             <li className="nav-item link">
-                                <div className="nav-link" onClick={SignOut}>
+                                <div className="btn btn-outline-danger" onClick={SignOut}>
                                     Log Out
                                 </div>
                             </li>
