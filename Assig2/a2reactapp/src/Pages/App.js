@@ -1,40 +1,55 @@
 import logo from '../logo.svg';
 import '../App.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SHA256 from 'crypto-js/sha256';
 import Suburbs from '../Components/Suburbs'
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 function App() {
-  
+    const isSignedIn = Cookies.get("isSignedIn");
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (!isSignedIn) {
+            navigate("/login");
+        } else {
+            document.getElementById('name').innerHTML = "Hello " + Cookies.get('Name');
+        }
+    })
 
 
-  return (
-    <div className="App">
-          <nav class="navbar navbar-expand-lg navbar-light bg-light">
-              <div class="container-fluid">
-                  <p class="navbar-brand">Navbar</p>
+    return (
+        <div className="App">
+            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                <div className="container-fluid">
+                    <p className="navbar-brand">Navbar</p>
 
-                  <div class="collapse navbar-collapse" id="navbarNav">
-                      <ul class="navbar-nav">
-                          <li class="nav-item">
-                              <a class="nav-link active" aria-current="page" href="#">Home</a>
-                          </li>
-                          <li class="nav-item">
-                              <Link className="nav-link active" to="/Login"> Login</Link>
-                          </li>
-                          <li class="nav-item">
-                              <Link className="nav-link active" to="/Dash"> Dash</Link>
-                          </li>
-                      </ul>
-                  </div>
-              </div>
+                    <div className="collapse navbar-collapse" id="navbarNav">
+                        <ul className="navbar-nav">
+                            <li className="nav-item">
+                                <a className="nav-link active" aria-current="page" href="#">Home</a>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link active" to="/Dash"> Dash</Link>
+                            </li>
+                          
+                        </ul>
+                    </div> 
+                    <div className="collapse navbar-collapse  justify-content-end">
+                        <ul className="navbar-nav">
+                            <li className="nav-item ">
+                                <div className="nav-link" id="name">
 
-          </nav>
-          <Outlet />
-    </div>
-  );
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </nav>
+            <Outlet />
+        </div>
+    );
 }
 
 export default App;

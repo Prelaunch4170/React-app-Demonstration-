@@ -31,9 +31,10 @@ const SignIn = ({ }) => {
             .then(response => response.json())
             .then(data => {
                 if (data === true) {
-                    //navigate("/Dash");
+                    //
                     Cookies.set("isSignedIn", true, { expires: 1 });
-
+                    Cookies.set("Name", userName, { expires: 1 });
+                    navigate("/Dash");
                 } else {
                     console.log("Login failed:");
                     document.getElementById("Error_Text").innerHTML = "Incorrect Username or Password";
