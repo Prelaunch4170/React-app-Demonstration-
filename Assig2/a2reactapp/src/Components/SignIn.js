@@ -3,35 +3,17 @@ import SHA256 from 'crypto-js/sha256';
 import { useNavigate } from 'react-router-dom';
 
 const SignIn = ({ }) => {
-    const [subData, setState] = useState([]);
+    /*const [subData, setState] = useState([]);*/
 
-    const [selectedSelect, setSelected] = useState(['']);
+    /*const [selectedSelect, setSelected] = useState(['']);*/
 
-    const [qUserName, setUserName] = useState('');
-    const [qPassword, setPassword] = useState('');
-    const [attemptLogin, setAttemptLogin] = useState(false); //the query was running twice on load
+    //const [qUserName, setUserName] = useState('');
+    //const [qPassword, setPassword] = useState('');
+    //const [attemptLogin, setAttemptLogin] = useState(false); //the query was running twice on load
 
 
     const navigate = useNavigate();
-    useEffect(() => {
-        
-        if (attemptLogin) {
-
-            fetch(`http://localhost:5147/api/Login?userName=${qUserName}&passwordHash=${qPassword}`)
-                .then(response => response.json())
-                .then(data => setState(data))
-                .catch(err => {
-                    console.log(err);
-                });
-                if (subData == true) {
-                    navigate("/Dash");
-                } else {
-
-                    console.log("Login failed:");
-                }
-        }
-    }, [attemptLogin, qUserName, qPassword, navigate])
-    //https://bobbyhadz.com/blog/react-select-onchange
+    
 
 
 
@@ -40,10 +22,22 @@ const SignIn = ({ }) => {
         const userName = document.querySelector('[name="userName"]').value;
         const password = document.querySelector('[name="password"]').value;
         const hashedPassword = SHA256(password).toString();
-       
-        setUserName(userName);
-        setPassword(hashedPassword);
-        setAttemptLogin(true)
+        
+        
+
+        fetch(`http://localhost:5147/api/Login?userName=${userName}&passwordHash=${hashedPassword}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data === true) { // Assuming a successful login returns `true`
+                    navigate("/Dash");
+                } else {
+                    console.log("Login failed:");
+                    document.getElementById("Error_Text").innerHTML = "Incorrect Username or Password";
+                }
+            })
+            .catch(err => {
+                console.log("Error during login:", err);
+            });
     }
     return (
         <div className="container">
@@ -67,6 +61,11 @@ const SignIn = ({ }) => {
 
             <div className="row justify-content-center mt-4">
                 <button type="button" className="btn btn-primary col-md-2" onClick={logInQuery}>Sign in</button>
+            </div>
+            <div className="row justify-content-center mt-4">
+                <div className="col-md-4 text-center" style={ {color: 'red'}} id="Error_Text">
+                    
+                </div>
             </div>
         </div>
 
