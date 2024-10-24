@@ -6,26 +6,28 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Pages/LogIn';
+import Register from './Components/Register';
 import Dash from './Pages/DashBoard';
 import SignIn from './Components/SignIn';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     
-        <BrowserRouter>
+    <BrowserRouter>
             
-            <Routes>
+        <Routes>
             <Route path="Login" element={<Login />} >
+                <Route index element={<SignIn />} />
                 <Route path="Register" element={<Register />} />
                 <Route path="SignIn" element={<SignIn />} />
             </Route>
 
                 
-                <Route path="/" element={<App />}>
-                    <Route path="Dash" element={<Dash />} />
-                </Route>
-            </Routes>
-        </BrowserRouter>
+            <Route path="/" element={<App />}>
+                <Route path="Dash" element={<Dash />} />
+            </Route>
+        </Routes>
+    </BrowserRouter>
     
 );
 

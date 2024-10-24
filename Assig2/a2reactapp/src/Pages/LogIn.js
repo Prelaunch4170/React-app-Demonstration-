@@ -10,14 +10,14 @@ function Login() {
         <div className="App">
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
                 <div className="container-fluid">
-                    <p className="navbar-brand">Dash Board</p
+                    <p className="navbar-brand">Log In</p>
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <Link className="nav-link active" to="/Signin">Sign In</Link>
+                                <Link className="nav-link active" to="Signin">Sign In</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link active" to="/Register">Register</Link>
+                                <Link className="nav-link active" to="Register">Register</Link>
                             </li>
                         </ul>
                     </div> 

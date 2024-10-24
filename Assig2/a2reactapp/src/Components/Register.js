@@ -11,7 +11,7 @@ const SignIn = ({ }) => {
         const password = document.querySelector('[name="password"]').value;
         const hashedPassword = SHA256(password).toString();
 
-        fetch(`http://localhost:5147/api/Login?userName=${userName}&passwordHash=${hashedPassword}`)
+        fetch(`http://localhost:5147/api/Register?userName=${userName}&passwordHash=${hashedPassword}`)
             .then(response => response.json())
             .then(data => {
                 if (data === true) {
@@ -21,7 +21,7 @@ const SignIn = ({ }) => {
                     navigate("/Dash");
                 } else {
                     console.log("Login failed:");
-                    document.getElementById("Error_Text").innerHTML = "Incorrect Username or Password";
+                    document.getElementById("Error_Text").innerHTML = "Could not make Account";
                 }
             })
             .catch(err => {
@@ -49,7 +49,7 @@ const SignIn = ({ }) => {
             </div>
 
             <div className="row justify-content-center mt-4">
-                <button type="button" className="btn btn-primary col-md-2" onClick={logInQuery}>Sign in</button>
+                <button type="button" className="btn btn-primary col-md-2" onClick={logInQuery}>Register</button>
             </div>
             <div className="row justify-content-center mt-4">
                 <div className="col-md-4 text-center" style={{ color: 'red' }} id="Error_Text">
