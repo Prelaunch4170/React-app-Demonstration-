@@ -5,27 +5,11 @@ import Cookies from 'js-cookie';
 
 
 const SignIn = ({ }) => {
-    /*const [subData, setState] = useState([]);*/
-
-    /*const [selectedSelect, setSelected] = useState(['']);*/
-
-    //const [qUserName, setUserName] = useState('');
-    //const [qPassword, setPassword] = useState('');
-    //const [attemptLogin, setAttemptLogin] = useState(false); //the query was running twice on load
-
-
     const navigate = useNavigate();
-    
-
-
-
-
     function logInQuery(evt) {
         const userName = document.querySelector('[name="userName"]').value;
         const password = document.querySelector('[name="password"]').value;
         const hashedPassword = SHA256(password).toString();
-        
-        
 
         fetch(`http://localhost:5147/api/Login?userName=${userName}&passwordHash=${hashedPassword}`)
             .then(response => response.json())
