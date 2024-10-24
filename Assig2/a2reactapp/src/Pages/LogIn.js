@@ -1,11 +1,21 @@
 ﻿
 import '../App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Signin from '../Components/SignIn';
 import Register from '../Components/Register';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 function Login() {
+    const isSignedIn = Cookies.get("isSignedIn");
+    const navigate = useNavigate();
+    useEffect(() => {
+        if (isSignedIn) {
+            navigate("/Dash");
+        }
+    })
+
+
     return (
         <div className="App">
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
