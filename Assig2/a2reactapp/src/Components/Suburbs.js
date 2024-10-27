@@ -20,19 +20,18 @@ const Suburbs = ({ }) => {
     }
 
     return (
-        <div className="container">
-            <div className="row justify-content-md-center form-floating">
-                <div className="form-floating col-4">
-                    <select className="form-select" id="selectSub" value={selectedSelect} onChange={selectChanged}>
-                        <option value=""></option>
-                        {subData.map((suburb, index) => (
-                            <option key={index} value={suburb}>{suburb}</option>
-                        ) )}
-                </select>
-                        <label htmlfor="selectSub">Select Suburb</label>
-                </div>
-            </div>
+        
+            
+        <div className="form-floating col-12">
+            <select className="form-select w-200" id="selectSub" value={selectedSelect} onChange={selectChanged}>
+                <option value=""></option>
+                {subData.map((suburb, index) => (
+                    <option key={index} value={suburb}>{suburb}</option>
+                ) )}
+        </select>
+                <label htmlfor="selectSub">Select Suburb</label>
         </div>
+        
     )
 
 

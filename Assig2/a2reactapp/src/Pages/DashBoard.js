@@ -7,8 +7,17 @@ import Suburbs from '../Components/Suburbs';
 
 function DashBoard() {
     return (
-        < Suburbs />
-
+        
+        <div className="row justify-content-md-center align-items-center">
+            <div className="col-auto">
+                <Suburbs />
+            </div>
+            <div className="col-auto">
+                <button className="btn btn-success">
+                    Get Report
+                </button>
+            </div>
+        </div>
     );
 }
 
