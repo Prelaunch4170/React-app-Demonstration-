@@ -31,7 +31,7 @@ const SignIn = ({ }) => {
     return (
         <div className="container">
             <div className="row justify-content-center">
-                <div className="col-md-4 mb-3">
+                <div className="col-md-6 mb-3">
                     <div className="form-floating">
                         <input type="text" name="userName" id="userName" className="form-control" />
                         <label for="userName">User Name</label>
@@ -40,7 +40,7 @@ const SignIn = ({ }) => {
             </div>
 
             <div className="row justify-content-center">
-                <div className="col-md-4 mb-3">
+                <div className="col-md-6 mb-3">
                     <div className="form-floating">
                         <input type="password" id="password" name="password" className="form-control" />
                         <label for="password">Password</label>
@@ -52,7 +52,7 @@ const SignIn = ({ }) => {
                 <button type="button" className="btn btn-primary col-md-2" onClick={logInQuery}>Register</button>
             </div>
             <div className="row justify-content-center mt-4">
-                <div className="col-md-4 text-center" style={{ color: 'red' }} id="Error_Text">
+                <div className="col-md-6 text-center" style={{ color: 'red' }} id="Error_Text">
 
                 </div>
             </div>
