@@ -14,15 +14,12 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     
     <BrowserRouter>
-            
         <Routes>
             <Route path="Login" element={<Login />} >
                 <Route index element={<SignIn />} />
                 <Route path="Register" element={<Register />} />
                 <Route path="SignIn" element={<SignIn />} />
             </Route>
-
-                
             <Route path="/" element={<App />}>
                 <Route path="Dash" element={<Dash />} />
             </Route>

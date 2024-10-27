@@ -1,4 +1,4 @@
-import logo from '../logo.svg';
+import logo from '../Images/sapolice.png';
 import '../App.css';
 import React, { useEffect, useState } from 'react';
 import SHA256 from 'crypto-js/sha256';
@@ -16,7 +16,6 @@ function App() {
             document.getElementById('name').innerHTML = "Hello " + Cookies.get('Name');
         }
     })
-
     function SignOut() {
         Cookies.remove('isSignedIn');
         Cookies.remove('Name');
@@ -24,18 +23,13 @@ function App() {
     }
     return (
         <div className="App">
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#0060A9' }}>
                 <div className="container-fluid">
-                    <p className="navbar-brand">Dash Board</p>
+                    <Link className="navbar-brand" to="/Dash">
+                        <img src={logo} width="340" height="100" alt=""/>
+                    </Link>
 
                     <div className="collapse navbar-collapse" id="navbarNav">
-                        <ul className="navbar-nav">
-                            <li className="nav-item">
-                                <Link className="nav-link active" to="/Dash"> Home</Link>
-                                
-                            </li>
-                          
-                        </ul>
                     </div> 
                     <div className="collapse navbar-collapse  justify-content-end">
                         <ul className="navbar-nav">
@@ -52,8 +46,8 @@ function App() {
                         </ul>
                     </div>
                 </div>
-
             </nav>
+            <br />
             <Outlet />
         </div>
     );

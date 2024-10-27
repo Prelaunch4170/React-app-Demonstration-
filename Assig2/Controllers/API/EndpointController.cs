@@ -101,7 +101,7 @@ namespace Assig2.Controllers.API
         {
             var cameraContext = _context.CameraCodes;
             Debug.Assert(suburb != null, "Suburb was NULL here.");
-            var suburbs = await cameraContext.Where(i => i.Suburb.ToLower().StartsWith(suburb.ToLower())).Select(i => new { i.LocationId, i.CameraTypeCode, i.CameraTypeCodeNavigation.CameraType1, i.Suburb, i.RoadName, i.RoadType }).ToListAsync();
+            var suburbs = await cameraContext.Where(i => i.Suburb.ToLower().StartsWith(suburb.ToLower()) || i.Suburb.ToLower().StartsWith(" " + suburb.ToLower())).Select(i => new { i.LocationId, i.CameraTypeCode, i.CameraTypeCodeNavigation.CameraType1, i.Suburb, i.RoadName, i.RoadType }).ToListAsync();
 
             if (cameraIdsOnly)
             {
@@ -131,7 +131,7 @@ namespace Assig2.Controllers.API
                 return expiationCategories.OrderBy(i => i.OffenceCode);
         }
 
-
+        //This One
         /// <summary>
         /// Gets a list of Expiations for a given LocationId + Camera Type. Option to return only the list of Offence Codes
         /// </summary>
@@ -190,7 +190,7 @@ namespace Assig2.Controllers.API
 
             return await Task.FromResult(offences.ToList());
         }
-
+        //This One
         /// <summary>
         /// Gets aggregated stats for a given LocationId + CameraType. Returns a bunch of stats you might be interested in. Feel free to extend the functionality.
         /// </summary>

@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+body {
+    background-color: #2a2a2b  !important; /* Dark background */
+    color: #e0e0e0 !important; /* Light text color */
+    font-family: Arial, sans-serif;
+}
+

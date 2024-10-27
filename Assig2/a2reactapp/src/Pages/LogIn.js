@@ -18,7 +18,7 @@ function Login() {
 
     return (
         <div className="App">
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+            <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#0060A9' }}>
                 <div className="container-fluid">
                     <p className="navbar-brand">Log In</p>
                     <div className="collapse navbar-collapse" id="navbarNav">
@@ -34,6 +34,7 @@ function Login() {
                 </div>
 
             </nav>
+            <br/>
             <Outlet />
         </div>
 
