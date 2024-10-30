@@ -38,6 +38,26 @@ const Suburbs = ({ }) => {
                 </div>
             </div>
 
+            <div className="row mt-3">
+                <div className="col-md-4">
+                    <input type="date" className="form-control input-height" placeholder="" />
+                </div>
+                <div className="col-md-5 d-flex align-items-center">
+                    <div className="form-check me-3">
+                        <input type="radio" className="form-check-input" id="PToP" name="cameraType" />
+                        <label className="form-check-label" htmlFor="PToP">P to P</label>
+                    </div>
+                    <div className="form-check">
+                        <input type="radio" className="form-check-input" id="Inter" name="cameraType" />
+                        <label className="form-check-label" htmlFor="Inter">Intersection</label>
+                    </div>
+                </div>
+                <div className="col-md-3">
+                    <button className="btn btn-success">
+                        Get Report
+                    </button>
+                </div>
+            </div>
         </div>
 
     )
