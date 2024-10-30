@@ -12,11 +12,6 @@ function DashBoard() {
             <div className="col-auto">
                 <Suburbs />
             </div>
-            <div className="col-auto">
-                <button className="btn btn-success">
-                    Get Report
-                </button>
-            </div>
         </div>
     );
 }

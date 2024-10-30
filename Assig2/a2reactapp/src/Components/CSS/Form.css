@@ -1,0 +1,6 @@
+﻿.form-floating > .form-select ~ label::after {
+    background-color: rgba(0,0,0,0) !important;
+}
+.input-height {
+    height: 58px; 
+}

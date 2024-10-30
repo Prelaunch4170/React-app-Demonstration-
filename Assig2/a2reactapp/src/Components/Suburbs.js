@@ -1,5 +1,5 @@
 ﻿import React, { useState } from 'react'
-
+import './CSS/Form.css'
 
 const Suburbs = ({ }) => {
     const [subData, setState] = useState([]);
@@ -16,17 +16,30 @@ const Suburbs = ({ }) => {
     const selectChanged = event => {
         setSelected(event.target.value);
     }
+
+
+
+
     return (
-        <div className="form-floating col-12">
-            <select className="form-select w-200" id="selectSub" value={selectedSelect} onChange={selectChanged}>
-                <option value=""></option>
-                {subData.map((suburb, index) => (
-                    <option key={index} value={suburb}>{suburb}</option>
-                ) )}
-        </select>
-                <label htmlfor="selectSub">Select Suburb</label>
+        <div className="container text-center">
+            <div className="row">
+                <div className="col-md-6 form-floating">
+                    <select className="form-select" id="selectSub" value={selectedSelect} onChange={selectChanged}>
+                        <option value=""></option>
+                        {subData.map((suburb, index) => (
+                            <option key={index} value={suburb}>{suburb}</option>
+                        ))}
+                    </select>
+                    <label htmlFor="selectSub">Select Suburb</label>
+                </div>
+
+                <div className="col-md-6">
+                    <input type="text" className="form-control input-height" placeholder="Input Text" />
+                </div>
+            </div>
+
         </div>
-        
+
     )
 
 

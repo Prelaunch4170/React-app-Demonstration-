@@ -29,9 +29,9 @@ function App() {
                         <img src={logo} width="340" height="100" alt=""/>
                     </Link>
 
-                    <div className="collapse navbar-collapse" id="navbarNav">
+                    <div className="" id="navbarNav">
                     </div> 
-                    <div className="collapse navbar-collapse  justify-content-end">
+                    <div className="  justify-content-end">
                         <ul className="navbar-nav">
                             <li className="nav-item ">
                                 <div className="nav-link" id="name">
