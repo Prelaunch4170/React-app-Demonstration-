@@ -15,7 +15,6 @@ const SignIn = ({ }) => {
             .then(response => response.json())
             .then(data => {
                 if (data === true) {
-                    //
                     Cookies.set("isSignedIn", true, { expires: 1 });
                     Cookies.set("Name", userName, { expires: 1 });
                     navigate("/Dash");

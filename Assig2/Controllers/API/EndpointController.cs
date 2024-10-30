@@ -30,8 +30,9 @@ namespace Assig2.Controllers.API
     public class EndpointController : Controller
     {
         private readonly ExpiationsContext _context;
-        ImmutableList<string> cameraCodes = ImmutableList.Create("M", "PAC", "I/section", "P2P", "Rail", "Mid Block");
-        static Dictionary<string, string> loginList = new Dictionary<string, string> { {"cool_fred", sha256hash("hunter2") }, { "large_marge", sha256hash("test123") }, { "a", sha256hash("a") } };
+        ImmutableList<string> cameraCodes = ImmutableList.Create("F", "M", "PAC", "I/section", "P2P", "Rail", "Mid Block");
+        //Missed 'F' camera type. Thanks to Brian.
+        static Dictionary<string, string> loginList = new Dictionary<string, string> { { "cool_fred", sha256hash("hunter2") }, { "large_marge", sha256hash("test123") }, { "a", sha256hash("a") } };
         //hunter2 should map to -> f52fbd32b2b3b86ff88ef6c490628285f482af15ddcb29541f94bcf526a3f6c7
         //test123 should map to -> ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae
         //Try with this tool: https://emn178.github.io/online-tools/sha256.html
@@ -101,8 +102,11 @@ namespace Assig2.Controllers.API
         {
             var cameraContext = _context.CameraCodes;
             Debug.Assert(suburb != null, "Suburb was NULL here.");
-            var suburbs = await cameraContext.Where(i => i.Suburb.ToLower().StartsWith(suburb.ToLower()) || i.Suburb.ToLower().StartsWith(" " + suburb.ToLower())).Select(i => new { i.LocationId, i.CameraTypeCode, i.CameraTypeCodeNavigation.CameraType1, i.Suburb, i.RoadName, i.RoadType }).ToListAsync();
-
+            var suburbs = await cameraContext.Where(i => i.Suburb.ToLower().StartsWith(suburb.ToLower()) || i.Suburb.ToLower().StartsWith(" " + suburb.ToLower()))
+                .Select(i => new { i.LocationId, i.CameraTypeCode, i.CameraTypeCodeNavigation.CameraType1, i.Suburb, i.RoadName, i.RoadType }).ToListAsync();
+            //Tks to Andre for noticing some Suburbs start with " Adelaide". If this version is slower or you don't like it, relpace with previous version ->
+            // var suburbs = await cameraContext.Where(i => i.Suburb.ToLower().StartsWith(suburb.ToLower()))
+            // .Select(i => new { i.LocationId, i.CameraTypeCode, i.CameraTypeCodeNavigation.CameraType1, i.Suburb, i.RoadName, i.RoadType }).ToListAsync();
             if (cameraIdsOnly)
             {
                 return suburbs.Select(i => new { i.LocationId, i.CameraTypeCode });
@@ -128,10 +132,10 @@ namespace Assig2.Controllers.API
             {
                 return expiationCategories.Select(i => i.OffenceCode);
             }
-                return expiationCategories.OrderBy(i => i.OffenceCode);
+            return expiationCategories.OrderBy(i => i.OffenceCode);
         }
 
-        //This One
+
         /// <summary>
         /// Gets a list of Expiations for a given LocationId + Camera Type. Option to return only the list of Offence Codes
         /// </summary>
@@ -142,9 +146,9 @@ namespace Assig2.Controllers.API
         /// <param name="offenceCodes">Optional: Return only Offences that include the current offenceCode. Multiple inputs allowed to extend the List. E.g. ["A001","A002"] </param>
         /// <returns>List&lt;Expiation&gt;. i.e a List of matching Expiation. Check the relationial diagram on the course website to help determine what fields are contained in the table.</returns>
         [HttpPost(Name = "Get_ExpiationsForLocationId"), HttpGet(Name = "Get_ExpiationsForLocationId")]
-        public async Task<object> Get_ExpiationsForLocationId(int locationId, string? cameraTypeCode, int startTime=0, int endTime= Int32.MaxValue, [FromQuery] List<String>?offenceCodes = null)
+        public async Task<object> Get_ExpiationsForLocationId(int locationId, string? cameraTypeCode, int startTime = 0, int endTime = Int32.MaxValue, [FromQuery] List<String>? offenceCodes = null)
         {
-            
+
             Debug.Assert(cameraTypeCode == null || cameraCodes.Contains(cameraTypeCode), "Your provided cameraTypeCode wasn't in the list");
             Debug.Assert(locationId > 0, "locationId was 0 or null. You must supply valid locationId or things will explode (this is bad). Try fetching from Get_ListCamerasInSuburb");
             var dateRangeStart = DateOnlyRange_IHateTimezones(startTime, -1);
@@ -155,7 +159,8 @@ namespace Assig2.Controllers.API
             var offencesContext = _context.Expiations;
             IQueryable<Expiation>? offences;
 
-            if (cameraTypeCode == null) {
+            if (cameraTypeCode == null)
+            {
                 //I'm going to assume you know what you're doing
                 offences = offencesContext.Where(i => i.CameraLocationId == locationId
                 && i.IncidentStartDate >= dateRangeStart && i.IncidentStartDate <= dateRangeEnd);
@@ -188,9 +193,9 @@ namespace Assig2.Controllers.API
                 offencesEnum = offencesEnum.Where(i => offenceCodes.Contains(i.OffenceCode));
             }
 
-            return await Task.FromResult(offences.ToList());
+            return await Task.FromResult(offencesEnum.ToList());
         }
-        //This One
+
         /// <summary>
         /// Gets aggregated stats for a given LocationId + CameraType. Returns a bunch of stats you might be interested in. Feel free to extend the functionality.
         /// </summary>
@@ -200,7 +205,7 @@ namespace Assig2.Controllers.API
         /// <param name="endTime">Optional: Return only Offences that happened before this end time. Uses Unix timestamp notation. Defaults to Int32.Max (All Offences)</param>
         /// <param name="offenceCodes">Optional: Return only Offences that include the current offenceCode. Multiple inputs allowed to extend the List: ["A001","A002"] </param>
         /// <returns>firstExpiationInSet, lastExpiationInSet, totalOffencesCount, totalDemerits, totalFeeSum, avgDemeritsPerDay, avgFeePerDay, expiationDaysOfWeek</returns>
-        [HttpPost(Name = "Get_ExpiationStatsForLocationId"), HttpGet(Name ="Get_ExpiationStatsForLocationId")]
+        [HttpPost(Name = "Get_ExpiationStatsForLocationId"), HttpGet(Name = "Get_ExpiationStatsForLocationId")]
         public async Task<object> Get_ExpiationStatsForLocationId(int locationId, string? cameraTypeCode, int startTime = 0, int endTime = Int32.MaxValue, [FromQuery] List<String>? offenceCodes = null)
         {
             Debug.Assert(cameraTypeCode == null || cameraCodes.Contains(cameraTypeCode), "Your provided cameraTypeCode wasn't in the list");
@@ -212,7 +217,7 @@ namespace Assig2.Controllers.API
 
             var offencesContext = _context.Expiations;
             var offenceTypesContext = _context.Offences;
-           
+
             IQueryable<Expiation>? offences;
 
             if (cameraTypeCode == null)
@@ -261,16 +266,16 @@ namespace Assig2.Controllers.API
             //Eh, you can optimise this if you want. Select only relevant Offences. Or Select once, save to JSON file locally, then query the local file.
             demeritsDict = offencesData.ToDictionary(pair => pair.OffenceCode, pair => pair.DemeritPoints ?? 0);
 
-            var expiationDaysOfWeek = new Dictionary<string, int>() { ["Monday"] = 0, ["Tuesday"] = 0, ["Wednesday"] = 0 ,["Thursday"] = 0, ["Friday"] = 0, ["Saturday"]= 0, ["Sunday"] = 0 }; 
+            var expiationDaysOfWeek = new Dictionary<string, int>() { ["Monday"] = 0, ["Tuesday"] = 0, ["Wednesday"] = 0, ["Thursday"] = 0, ["Friday"] = 0, ["Saturday"] = 0, ["Sunday"] = 0 };
 
             if (offenceCodes.Count() > 0)
             {
                 offencesEnum = offencesEnum.Where(i => offenceCodes.Contains(i.OffenceCode));
             }
 
-            foreach (var expiation in offencesEnum.Select(i => new { i.OffenceCode, i.IncidentStartDate, i.BacContentExp, i.TotalFeeAmt}))
+            foreach (var expiation in offencesEnum.Select(i => new { i.OffenceCode, i.IncidentStartDate, i.BacContentExp, i.TotalFeeAmt }))
             {
-                expiationDaysOfWeek[expiation.IncidentStartDate.DayOfWeek.ToString()] ++;
+                expiationDaysOfWeek[expiation.IncidentStartDate.DayOfWeek.ToString()]++;
                 totalFeeSum += expiation.TotalFeeAmt ?? 0;
                 totalOffencesCount++;
                 totalDemerits += demeritsDict.GetValueOrDefault(expiation.OffenceCode ?? "", 0);
@@ -280,7 +285,7 @@ namespace Assig2.Controllers.API
                 firstExpiationInSet = DateTimeToUnixTime(offencesEnum.First().IncidentStartDate, offencesEnum.First().IncidentStartTime);
                 lastExpiationInSet = DateTimeToUnixTime(offencesEnum.Last().IncidentStartDate, offencesEnum.Last().IncidentStartTime);
                 diff = lastExpiationInSet - firstExpiationInSet;
-                
+
             }
 
             if (diff == 0) diff = 86400;
@@ -288,14 +293,14 @@ namespace Assig2.Controllers.API
             avgDemeritsPerDay = 86400d / (double)diff * totalDemerits;
             avgFeePerDay = 86400d / (double)diff * totalFeeSum;
 
-            return new { firstExpiationInSet, lastExpiationInSet, totalOffencesCount, totalDemerits, totalFeeSum, avgDemeritsPerDay, avgFeePerDay, expiationDaysOfWeek};
+            return new { firstExpiationInSet, lastExpiationInSet, totalOffencesCount, totalDemerits, totalFeeSum, avgDemeritsPerDay, avgFeePerDay, expiationDaysOfWeek };
         }
 
         //Helper methods, don't mind me
         private static int DateTimeToUnixTime(DateOnly date, TimeOnly time)
         {
             DateTime combined = new DateTime(date, time);
-            
+
             int unixTime = (int)((DateTimeOffset)combined).ToUnixTimeSeconds();
             return unixTime;
         }
