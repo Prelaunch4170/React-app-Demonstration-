@@ -8,8 +8,8 @@ import Suburbs from '../Components/Suburbs';
 function DashBoard() {
     return (
         
-        <div className="row justify-content-md-center align-items-center">
-            <div className="col-auto">
+        <div className="container justify-content-center">
+            <div className="col-12">
                 <Suburbs />
             </div>
         </div>
