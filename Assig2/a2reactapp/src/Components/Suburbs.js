@@ -20,7 +20,47 @@ const Suburbs = ({ }) => {
         setSelected(event.target.value);
     }
 
+    function loadLocations() {
+        var failedCheck = true
+        var suburb = document.getElementById('selectSub').value;
+        var offence = document.getElementById('offenceSelect').value;
+        var date = document.getElementById('dateSelect').value;
+        var cameras = document.querySelectorAll('input[name="cameraType"]');
+        let selectedCamera = "";
 
+
+        if (!suburb) {
+            document.getElementById('selectSubError').innerHTML = "Please select a suburb";
+        } else {
+            document.getElementById('selectSubError').innerHTML = "";
+            failedCheck = false;
+        }
+        if (!offence) {
+            document.getElementById('offenceError').innerHTML = "Please select an offence";
+        } else {
+            document.getElementById('offenceError').innerHTML = "";
+            failedCheck = false;
+        }
+        if (!date) {
+            document.getElementById('dateError').innerHTML = "Please select a Date";
+        } else {
+            document.getElementById('dateError').innerHTML = "";
+            failedCheck = false;
+        }//https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
+        for (const cameraButton of cameras) {
+            if (cameraButton.checked) {
+                selectedCamera = cameraButton.value;
+                break
+            }
+        }
+        if (!selectedCamera) {
+            document.getElementById('cameraError').innerHTML = "Please select a CameraType";
+        } else {
+            document.getElementById('cameraError').innerHTML = "";
+            failedCheck = false;
+        } 
+        console.log(failedCheck)
+    }
 
 
     return (
@@ -34,10 +74,11 @@ const Suburbs = ({ }) => {
                         ))}
                     </select>
                     <label htmlFor="selectSub">Select Suburb</label>
+                    <div id="selectSubError" className="text-danger" ></div>
                 </div>
 
                 <div className="col-md-4">
-                    <input type="text" className="form-control input-height" list="Offence" placeholder="Input Text" />
+                    <input type="text" className="form-control input-height" list="Offence" placeholder="Input Text" id="offenceSelect"/>
                     <datalist id="Offence">
                         <option value="Exceed Signed Speed by 1-9km/h">Exceed Signed Speed by 1-9km/h</option>
                         <option value="Exceed Signed Speed by 10-19km/h">Exceed Signed Speed by 10-19km/h</option>
@@ -53,9 +94,10 @@ const Suburbs = ({ }) => {
                         <option value="HV Vehicle > 12 tonne exceed 100km/h by 30-44km/h">HV Vehicle > 12 tonne exceed 100km/h by 30-44km/h</option>
 
                     </datalist>
+                    <div id="offenceError" className="text-danger" ></div>
                 </div>
                 <div className="col-md-2">
-                    <button className="btn btn-success" >
+                    <button className="btn btn-success" onClick={loadLocations}>
                         Load Cameras
                     </button>
                 </div>
@@ -63,17 +105,21 @@ const Suburbs = ({ }) => {
 
             <div className="row mt-3">
                 <div className="col-md-4">
-                    <input type="date" className="form-control input-height" placeholder="" />
+                    <input type="date" className="form-control input-height" placeholder="" id="dateSelect"/>
+                    <div id="dateError" className="text-danger" ></div>
                 </div>
                 <div className="col-md-4 d-flex align-items-center">
-                    <div className="form-check me-3">
-                        <input type="radio" className="form-check-input" id="PToP" name="cameraType" />
-                        <label className="form-check-label" htmlFor="PToP">P to P</label>
+                    <div>
+                        <div className="form-check me-3">
+                            <input type="radio" className="form-check-input" id="PToP" name="cameraType" />
+                            <label className="form-check-label" htmlFor="PToP">P to P</label>
+                        </div>
+                        <div className="form-check">
+                            <input type="radio" className="form-check-input" id="Inter" name="cameraType" />
+                            <label className="form-check-label" htmlFor="Inter">Intersection</label>
+                        </div>
                     </div>
-                    <div className="form-check">
-                        <input type="radio" className="form-check-input" id="Inter" name="cameraType" />
-                        <label className="form-check-label" htmlFor="Inter">Intersection</label>
-                    </div>
+                    <div id="cameraError" className="text-danger" ></div>
                 </div>
                 <div className="col-md-2">
                     <button className="btn btn-success" >

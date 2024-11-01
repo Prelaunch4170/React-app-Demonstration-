@@ -16,8 +16,8 @@ const SignIn = ({ }) => {
             .then(data => {
                 if (data === true) {
                     //
-                    Cookies.set("isSignedIn", true, { expires: 1 });
-                    Cookies.set("Name", userName, { expires: 1 });
+                    Cookies.set("isSignedIn", true);
+                    Cookies.set("Name", userName);
                     navigate("/Dash");
                 } else {
                     console.log("Login failed:");
