@@ -25,13 +25,29 @@ function App() {
         <div className="App">
             <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#0060A9' }}>
                 <div className="container-fluid">
-                    <Link className="navbar-brand" to="/Dash">
+                    <p className="navbar-brand">
                         <img src={logo} width="340" height="100" alt=""/>
-                    </Link>
+                    </p>
 
-                    <div className="" id="navbarNav">
+                    <div className="d-flex" id="navbarNav">
+                        <ul className="navbar-nav">
+                            <li className="nav-item">
+                                <Link className="nav-link active" to="/Dash"> Dash</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link active" to="/Report"> Report</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link disabled" to="/login"> Login</Link>
+                            </li>
+                            <li className="nav-item">
+                                <Link className="nav-link disabled" to="/login/Register"> Register</Link>
+                            </li>
+                        </ul>
                     </div> 
-                    <div className="  justify-content-end">
+
+
+                    <div className="justify-content-end">
                         <ul className="navbar-nav">
                             <li className="nav-item ">
                                 <div className="nav-link" id="name">

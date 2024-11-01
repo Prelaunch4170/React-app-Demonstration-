@@ -24,6 +24,9 @@ function Login() {
                     <div className="collapse navbar-collapse" id="navbarNav">
                         <ul className="navbar-nav">
                             <li className="nav-item">
+                                <Link className="nav-link disabled" to="/Dash"> Dash</Link>
+                            </li>
+                            <li className="nav-item">
                                 <Link className="nav-link active" to="Signin">Sign In</Link>
                             </li>
                             <li className="nav-item">

@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Pages/LogIn';
 import Register from './Components/Register';
 import Dash from './Pages/DashBoard';
+import Report from './Pages/Report';
 import SignIn from './Components/SignIn';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -22,6 +23,7 @@ root.render(
             </Route>
             <Route path="/" element={<App />}>
                 <Route path="Dash" element={<Dash />} />
+                <Route path="Report" element={<Report />} />
             </Route>
         </Routes>
     </BrowserRouter>

@@ -115,6 +115,7 @@ namespace Assig2.Controllers.API
             return suburbs.OrderBy(i => i.LocationId);
         }
 
+        //this one
         /// <summary>
         /// Gets a List of Offences with a given Description. Option to return only the list of Offence Codes. Offences are the list of named Offences codes (not the list of expiations).
         /// </summary>
@@ -135,7 +136,7 @@ namespace Assig2.Controllers.API
             return expiationCategories.OrderBy(i => i.OffenceCode);
         }
 
-
+        //This one
         /// <summary>
         /// Gets a list of Expiations for a given LocationId + Camera Type. Option to return only the list of Offence Codes
         /// </summary>
