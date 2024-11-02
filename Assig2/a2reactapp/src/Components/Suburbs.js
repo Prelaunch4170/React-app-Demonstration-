@@ -185,7 +185,21 @@ const Suburbs = ({ }) => {
                     </button>
                 </div>
             </div>
-           
+            <div className="mt-3">
+                <ul class="list-group">
+                    <li style={{display:'none'} } id="loading">Loading...</li>
+                    {locations.length > 0 ? (
+                        locations.map((location, index) => (
+                            <li key={index} className="list-group-item">
+                                {`Suburb: ${location.locationSuburb}, Location ID: ${location.locationId}, Expiations: ${location.expiations}, Road: ${location.road} `}
+                                <input type="checkbox" class="chooseLocation" name="locations" value={ location.locationId}/>
+                            </li>
+                        ))
+                    ) : (
+                        <li className="list-group-item" id="testing">No locations with expiations found</li>
+                    )}
+                </ul>
+            </div>
         </div>
     )
 }
