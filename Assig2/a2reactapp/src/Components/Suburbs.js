@@ -25,12 +25,12 @@ const Suburbs = ({ }) => {
 
 
     
-    function loadLocations() {
+    async function loadLocations() {
         let failedCheck = true
-        var suburb = document.getElementById('selectSub').value;
-        var offence = document.getElementById('offenceSelect').value;
-        var date = document.getElementById('dateSelect').value;
-        var cameras = document.querySelectorAll('input[name="cameraType"]');
+        let suburb = document.getElementById('selectSub').value;
+        let offence = document.getElementById('offenceSelect').value;
+        let date = document.getElementById('dateSelect').value;
+        let cameras = document.querySelectorAll('input[name="cameraType"]');
         let selectedCamera = "";
 
 
@@ -49,7 +49,6 @@ const Suburbs = ({ }) => {
         if (!date) {
             document.getElementById('dateError').innerHTML = "Please select a Date";
         } else {
-            console.log(date);
 
             document.getElementById('dateError').innerHTML = "";
             failedCheck = false;
@@ -67,37 +66,32 @@ const Suburbs = ({ }) => {
             failedCheck = false;
         } 
         console.log(failedCheck);
-
+        locationId
         if (!failedCheck) {
+            try {
+                const locations = await fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`);
+                const locationData = locations.json()
+
+
+            }
+
+
+
             fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`)
                 .then(response => response.json())
-                .then(data => setLocations(data))
+                .then(data => fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${data.locationId}`)
+                    .then(response => response.json())
+                    .then(data => setLocations(data))
+                    .catch(err => {
+                        console.log(err);
+                    });)
                 .catch(err => {
                     console.log(err);
                 });
-
-            
             
         }
         
     }
-    React.useEffect(() => {
-        var suburb = document.getElementById('selectSub').value;
-        var offence = document.getElementById('offenceSelect').value;
-        var date = document.getElementById('dateSelect').value;
-        var cameras = document.querySelectorAll('input[name="cameraType"]');
-        let selectedCamera = "";
-        //https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
-        for (const cameraButton of cameras) {
-            if (cameraButton.checked) {
-                selectedCamera = cameraButton.value;
-                break
-            }
-        }
-
-        locations.forEach(location => console.log(location.suburb + " " + location.locationId + " " + location.cameraTypeCode));
-
-    }, [locations]);
 
 
     return (
