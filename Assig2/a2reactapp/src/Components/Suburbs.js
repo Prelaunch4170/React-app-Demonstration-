@@ -71,7 +71,9 @@ const Suburbs = ({ }) => {
             document.getElementById('cameraError').innerHTML = "";
             failedCheck = false;
         } 
-        console.log(failedCheck);
+        
+
+
         if (!failedCheck) {
             try {
                 // queries im going to need
@@ -92,25 +94,33 @@ const Suburbs = ({ }) => {
                 //going into each camera location then merging the location with expiations
                 for (const location of locationData) {
                     try {
-                        const camerasCall = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${location.locationId}&cameraTypeCode=${selectedCamera}&startTime=${dateConvert}&endTime=2147483647${offencesList}`);
-                        const cameraData = await camerasCall.json();
-                        //merging data to be displayed 
-                        if (cameraData.length > 0) {
-                            locationsWithExpiations.push({
-                                locationSuburb: location.suburb,
-                                locationId: location.locationId,
-                                expiations: cameraData.length,
-                                road: location.roadName
+                        console.log(location)
+                        if (location.cameraTypeCode == selectedCamera) {
+                            const camerasCall = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${location.locationId}&cameraTypeCode=${selectedCamera}&startTime=${dateConvert}&endTime=2147483647${offencesList}`);
+                            const cameraData = await camerasCall.json();
 
-                            })
-                            console.log(cameraData)
+                            //merging data to be displayed 
+                            if (cameraData.length > 0) {
+                                console.log("cameraData: ")
+                                console.log(cameraData)
+                                locationsWithExpiations.push({
+                                    locationSuburb: location.suburb,
+                                    locationId: location.locationId,
+                                    expiations: cameraData.length,
+                                    road: location.roadName,
+                                    cameraType: cameraData[0].cameraTypeCode
+
+                                })
+
+
+                            }
                         }
+                        
                     } catch (err) {
                         console.error(`Error fetching for locationId ${location.locationId}:`, err);
                     }
                 }
 
-                console.log("\n\n\n\n\n\nLocations: \n")
                 setLocations(locationsWithExpiations);
               
             } catch (error) {
@@ -191,7 +201,7 @@ const Suburbs = ({ }) => {
                     {locations.length > 0 ? (
                         locations.map((location, index) => (
                             <li key={index} className="list-group-item">
-                                {`Suburb: ${location.locationSuburb}, Location ID: ${location.locationId}, Expiations: ${location.expiations}, Road: ${location.road} `}
+                                {`Suburb: ${location.locationSuburb}, Location ID: ${location.locationId}, Expiations: ${location.expiations}, Road: ${location.road}, camera: ${location.cameraType} `}
                                 <input type="checkbox" class="chooseLocation" name="locations" value={ location.locationId}/>
                             </li>
                         ))
