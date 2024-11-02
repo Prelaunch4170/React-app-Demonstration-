@@ -32,8 +32,10 @@ const Suburbs = ({ }) => {
         let date = document.getElementById('dateSelect').value;
         let cameras = document.querySelectorAll('input[name="cameraType"]');
         let selectedCamera = "";
+        let locationsWithExpiations = [];
 
-
+        document.getElementById('loading').style.display = 'initial';
+        //validation
         if (!suburb) {
             document.getElementById('selectSubError').innerHTML = "Please select a suburb";
         } else {
@@ -54,7 +56,8 @@ const Suburbs = ({ }) => {
             console.log(dateConvert)
             document.getElementById('dateError').innerHTML = "";
             failedCheck = false;
-        }//https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
+        }
+        //https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
         for (const cameraButton of cameras) {
             if (cameraButton.checked) {
                 selectedCamera = cameraButton.value;
@@ -71,23 +74,51 @@ const Suburbs = ({ }) => {
         console.log(failedCheck);
         if (!failedCheck) {
             try {
+                // queries im going to need
                 const locations = await fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`);
                 const locationData = await locations.json();
 
                 const offencesCall = await fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offence}`)
                 const offenceData = await offencesCall.json();
 
-                let locationsWithExpiations = [];
+                console.log("\n\n\n\n\n Offences");
 
+                let offencesList = ""
+                offenceData.forEach(offence => console.log(offence))
+                offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
+                console.log(offencesList)
+                console.log("\n\n\n\n\n");   
                 
+                //going into each camera location then merging the location with expiations
+                for (const location of locationData) {
+                    try {
+                        const camerasCall = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${location.locationId}&cameraTypeCode=${selectedCamera}&startTime=${dateConvert}&endTime=2147483647${offencesList}`);
+                        const cameraData = await camerasCall.json();
+                        //merging data to be displayed 
+                        if (cameraData.length > 0) {
+                            locationsWithExpiations.push({
+                                locationSuburb: location.suburb,
+                                locationId: location.locationId,
+                                expiations: cameraData.length,
+                                road: location.roadName
 
+                            })
+                            console.log(cameraData)
+                        }
+                    } catch (err) {
+                        console.error(`Error fetching for locationId ${location.locationId}:`, err);
+                    }
+                }
+
+                console.log("\n\n\n\n\n\nLocations: \n")
+                setLocations(locationsWithExpiations);
+              
             } catch (error) {
                 console.error("Error in fetching data:", error);
             }        
         }
-        
+        document.getElementById('loading').style.display = 'none';
     }
-
 
     return (
         <div className="container-fluid ">
@@ -154,17 +185,9 @@ const Suburbs = ({ }) => {
                     </button>
                 </div>
             </div>
-
-
-
-
+           
         </div>
-
-
-
     )
-
-
 }
 
 export default Suburbs
