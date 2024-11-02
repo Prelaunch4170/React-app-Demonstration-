@@ -49,13 +49,16 @@ const Suburbs = ({ }) => {
         if (!date) {
             document.getElementById('dateError').innerHTML = "Please select a Date";
         } else {
-
+            const jsDate = new Date(date);
+            var dateConvert = Math.floor(jsDate.getTime() / 1000);
+            console.log(dateConvert)
             document.getElementById('dateError').innerHTML = "";
             failedCheck = false;
         }//https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
         for (const cameraButton of cameras) {
             if (cameraButton.checked) {
                 selectedCamera = cameraButton.value;
+                console.log("\n\n\n\n\n" +selectedCamera + "\n\n\n\n\n")
                 break
             }
         }
@@ -66,29 +69,21 @@ const Suburbs = ({ }) => {
             failedCheck = false;
         } 
         console.log(failedCheck);
-        locationId
         if (!failedCheck) {
             try {
                 const locations = await fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`);
-                const locationData = locations.json()
+                const locationData = await locations.json();
 
+                const offencesCall = await fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offence}`)
+                const offenceData = await offencesCall.json();
 
-            }
+                let locationsWithExpiations = [];
 
+                
 
-
-            fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`)
-                .then(response => response.json())
-                .then(data => fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${data.locationId}`)
-                    .then(response => response.json())
-                    .then(data => setLocations(data))
-                    .catch(err => {
-                        console.log(err);
-                    });)
-                .catch(err => {
-                    console.log(err);
-                });
-            
+            } catch (error) {
+                console.error("Error in fetching data:", error);
+            }        
         }
         
     }
