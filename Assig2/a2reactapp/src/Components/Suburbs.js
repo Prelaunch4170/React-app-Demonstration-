@@ -4,7 +4,10 @@ import './CSS/Form.css'
 const Suburbs = ({ }) => {
     const [subData, setState] = useState([]);
     const [selectedSelect, setSelected] = useState(['']);
+
     const [locations, setLocations] = useState([]);
+
+    
 
 
     React.useEffect(() => {
@@ -20,6 +23,9 @@ const Suburbs = ({ }) => {
         setSelected(event.target.value);
     }
 
+
+
+    
     function loadLocations() {
         var failedCheck = true
         var suburb = document.getElementById('selectSub').value;
@@ -59,8 +65,22 @@ const Suburbs = ({ }) => {
             document.getElementById('cameraError').innerHTML = "";
             failedCheck = false;
         } 
-        console.log(failedCheck)
+        console.log(failedCheck);
+
+        if (!failedCheck) {
+            fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`)
+                .then(response => response.json())
+                .then(data => setLocations(data))
+                .catch(err => {
+                    console.log(err);
+                });
+            
+        }
+        
     }
+    React.useEffect(() => {
+        locations.forEach(location => console.log(location.suburb +" "+ location.locationId + " " + location.cameraTypeCode));
+    }, [locations]);
 
 
     return (
@@ -84,6 +104,7 @@ const Suburbs = ({ }) => {
                         <option value="Exceed Signed Speed by 10-19km/h">Exceed Signed Speed by 10-19km/h</option>
                         <option value="Exceed Signed Speed by 20-29km/h">Exceed Signed Speed by 20-29km/h</option>
                         <option value="Exceed Signed Speed by 30-44km/h">Exceed Signed Speed by 30-44km/h</option>
+                        <option value="Exceed Speed by 45km/h or more">Exceed Speed by 45km/h or more</option>
                         <option value="HV Bus > 5 tonne exceed 100km/h by 1-9km/h">HV Bus > 5 tonne exceed 100km/h by 1-9km/h</option>
                         <option value="HV Bus > 5 tonne exceed 100km/h by 10-19km/h">HV Bus > 5 tonne exceed 100km/h by 10-19km/h</option>
                         <option value="HV Bus > 5 tonne exceed 100km/h by 20-29km/h">HV Bus > 5 tonne exceed 100km/h by 20-29km/h</option>
@@ -111,11 +132,11 @@ const Suburbs = ({ }) => {
                 <div className="col-md-4 d-flex align-items-center">
                     <div>
                         <div className="form-check me-3">
-                            <input type="radio" className="form-check-input" id="PToP" name="cameraType" />
-                            <label className="form-check-label" htmlFor="PToP">P to P</label>
+                            <input type="radio" className="form-check-input" id="PToP" name="cameraType" value="M" />
+                            <label className="form-check-label" htmlFor="PToP">mobile</label>
                         </div>
                         <div className="form-check">
-                            <input type="radio" className="form-check-input" id="Inter" name="cameraType" />
+                            <input type="radio" className="form-check-input" id="Inter" name="cameraType" value="I/section" />
                             <label className="form-check-label" htmlFor="Inter">Intersection</label>
                         </div>
                     </div>

@@ -13,7 +13,9 @@ function App() {
         if (!isSignedIn) {
             navigate("/login");
         } else {
+            
             document.getElementById('name').innerHTML = "Hello " + Cookies.get('Name');
+            
         }
     })
     function SignOut() {

@@ -149,7 +149,6 @@ namespace Assig2.Controllers.API
         [HttpPost(Name = "Get_ExpiationsForLocationId"), HttpGet(Name = "Get_ExpiationsForLocationId")]
         public async Task<object> Get_ExpiationsForLocationId(int locationId, string? cameraTypeCode, int startTime = 0, int endTime = Int32.MaxValue, [FromQuery] List<String>? offenceCodes = null)
         {
-
             Debug.Assert(cameraTypeCode == null || cameraCodes.Contains(cameraTypeCode), "Your provided cameraTypeCode wasn't in the list");
             Debug.Assert(locationId > 0, "locationId was 0 or null. You must supply valid locationId or things will explode (this is bad). Try fetching from Get_ListCamerasInSuburb");
             var dateRangeStart = DateOnlyRange_IHateTimezones(startTime, -1);

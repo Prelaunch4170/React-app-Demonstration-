@@ -22,6 +22,7 @@ root.render(
                 <Route path="SignIn" element={<SignIn />} />
             </Route>
             <Route path="/" element={<App />}>
+                <Route index element={<Dash />} />
                 <Route path="Dash" element={<Dash />} />
                 <Route path="Report" element={<Report />} />
             </Route>
