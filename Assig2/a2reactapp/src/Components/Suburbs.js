@@ -24,10 +24,9 @@ const Suburbs = ({ }) => {
     }
 
 
-
     
     function loadLocations() {
-        var failedCheck = true
+        let failedCheck = true
         var suburb = document.getElementById('selectSub').value;
         var offence = document.getElementById('offenceSelect').value;
         var date = document.getElementById('dateSelect').value;
@@ -50,6 +49,8 @@ const Suburbs = ({ }) => {
         if (!date) {
             document.getElementById('dateError').innerHTML = "Please select a Date";
         } else {
+            console.log(date);
+
             document.getElementById('dateError').innerHTML = "";
             failedCheck = false;
         }//https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
@@ -74,12 +75,28 @@ const Suburbs = ({ }) => {
                 .catch(err => {
                     console.log(err);
                 });
+
+            
             
         }
         
     }
     React.useEffect(() => {
-        locations.forEach(location => console.log(location.suburb +" "+ location.locationId + " " + location.cameraTypeCode));
+        var suburb = document.getElementById('selectSub').value;
+        var offence = document.getElementById('offenceSelect').value;
+        var date = document.getElementById('dateSelect').value;
+        var cameras = document.querySelectorAll('input[name="cameraType"]');
+        let selectedCamera = "";
+        //https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
+        for (const cameraButton of cameras) {
+            if (cameraButton.checked) {
+                selectedCamera = cameraButton.value;
+                break
+            }
+        }
+
+        locations.forEach(location => console.log(location.suburb + " " + location.locationId + " " + location.cameraTypeCode));
+
     }, [locations]);
 
 

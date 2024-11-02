@@ -32,6 +32,13 @@ const SignIn = ({ }) => {
             <div className="row justify-content-center">
                 <div className="col-md-6 mb-3">
                     <div className="form-floating">
+                        <h2>Register</h2>
+                    </div>
+                </div>
+            </div>
+            <div className="row justify-content-center">
+                <div className="col-md-6 mb-3">
+                    <div className="form-floating">
                         <input type="text" name="userName" id="userName" className="form-control" />
                         <label for="userName">User Name</label>
                     </div>
