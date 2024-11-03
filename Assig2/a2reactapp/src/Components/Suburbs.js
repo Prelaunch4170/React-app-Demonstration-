@@ -1,12 +1,13 @@
 ﻿import React, { useState } from 'react'
 import './CSS/Form.css'
+import { useNavigate } from 'react-router-dom';
 
 const Suburbs = ({ }) => {
     const [subData, setState] = useState([]);
     const [selectedSelect, setSelected] = useState(['']);
 
     const [locations, setLocations] = useState([]);
-
+    const navigate = useNavigate();
     
 
 
@@ -23,7 +24,18 @@ const Suburbs = ({ }) => {
         setSelected(event.target.value);
     }
 
-
+    function makeReport() {
+        if (locations.length < 1) {
+            document.getElementById('reportError').innerHTML = "Please fill fields";
+        } else {
+            //https://stackoverflow.com/a/22938796
+            if (document.querySelectorAll('input[type="checkbox"]:checked').length != 2) {
+                document.getElementById('reportError').innerHTML = "Please select only 2 locations";
+            } else {
+                navigate('/Report')
+            }
+        }
+    }
     
     async function loadLocations() {
         let failedCheck = true
@@ -51,9 +63,10 @@ const Suburbs = ({ }) => {
         if (!date) {
             document.getElementById('dateError').innerHTML = "Please select a Date";
         } else {
+            //convert date
             const jsDate = new Date(date);
             var dateConvert = Math.floor(jsDate.getTime() / 1000);
-            console.log(dateConvert)
+            
             document.getElementById('dateError').innerHTML = "";
             failedCheck = false;
         }
@@ -61,7 +74,6 @@ const Suburbs = ({ }) => {
         for (const cameraButton of cameras) {
             if (cameraButton.checked) {
                 selectedCamera = cameraButton.value;
-                console.log("\n\n\n\n\n" +selectedCamera + "\n\n\n\n\n")
                 break
             }
         }
@@ -83,14 +95,13 @@ const Suburbs = ({ }) => {
                 const offencesCall = await fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offence}`)
                 const offenceData = await offencesCall.json();
 
-                console.log("\n\n\n\n\n Offences");
+                
 
                 let offencesList = ""
-                offenceData.forEach(offence => console.log(offence))
-                offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
-                console.log(offencesList)
-                console.log("\n\n\n\n\n");   
                 
+                offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
+                 
+                console.log("locations")
                 //going into each camera location then merging the location with expiations
                 for (const location of locationData) {
                     try {
@@ -98,21 +109,19 @@ const Suburbs = ({ }) => {
                         if (location.cameraTypeCode == selectedCamera) {
                             const camerasCall = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${location.locationId}&cameraTypeCode=${selectedCamera}&startTime=${dateConvert}&endTime=2147483647${offencesList}`);
                             const cameraData = await camerasCall.json();
-
                             //merging data to be displayed 
                             if (cameraData.length > 0) {
-                                console.log("cameraData: ")
-                                console.log(cameraData)
+                                
                                 locationsWithExpiations.push({
                                     locationSuburb: location.suburb,
                                     locationId: location.locationId,
                                     expiations: cameraData.length,
                                     road: location.roadName,
-                                    cameraType: cameraData[0].cameraTypeCode
+                                    roadType: location.roadType == null ? ("RD") : (location.roadType),
+                                    cameraType: cameraData[0].cameraTypeCode,
+                                    cameraType1: location.cameraType1
 
                                 })
-
-
                             }
                         }
                         
@@ -120,7 +129,8 @@ const Suburbs = ({ }) => {
                         console.error(`Error fetching for locationId ${location.locationId}:`, err);
                     }
                 }
-
+                //sort by number of expiations https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
+                locationsWithExpiations.sort((a, b) => b.expiations - a.expiations);
                 setLocations(locationsWithExpiations);
               
             } catch (error) {
@@ -141,7 +151,7 @@ const Suburbs = ({ }) => {
                         ))}
                     </select>
                     <label htmlFor="selectSub">Select Suburb</label>
-                    <div id="selectSubError" className="text-danger" ></div>
+                    <div id="selectSubError" className="text-warning" ></div>
                 </div>
 
                 <div className="col-md-4">
@@ -162,7 +172,7 @@ const Suburbs = ({ }) => {
                         <option value="HV Vehicle > 12 tonne exceed 100km/h by 30-44km/h">HV Vehicle > 12 tonne exceed 100km/h by 30-44km/h</option>
 
                     </datalist>
-                    <div id="offenceError" className="text-danger" ></div>
+                    <div id="offenceError" className="text-warning" ></div>
                 </div>
                 <div className="col-md-2">
                     <button className="btn btn-success" onClick={loadLocations}>
@@ -174,7 +184,7 @@ const Suburbs = ({ }) => {
             <div className="row mt-3">
                 <div className="col-md-4">
                     <input type="date" className="form-control input-height" placeholder="" id="dateSelect"/>
-                    <div id="dateError" className="text-danger" ></div>
+                    <div id="dateError" className="text-warning" ></div>
                 </div>
                 <div className="col-md-4 d-flex align-items-center">
                     <div>
@@ -187,21 +197,23 @@ const Suburbs = ({ }) => {
                             <label className="form-check-label" htmlFor="Inter">Intersection</label>
                         </div>
                     </div>
-                    <div id="cameraError" className="text-danger" ></div>
+                    <div id="cameraError" className="text-warning" ></div>
                 </div>
                 <div className="col-md-2">
-                    <button className="btn btn-success" >
+                    <button className="btn btn-success" onClick={makeReport }>
                         Get Report
                     </button>
+                    <div id="reportError" className="text-warning" ></div>
                 </div>
             </div>
             <div className="mt-3">
-                <ul class="list-group">
+                <ul class="list-group list-group-flush ">
                     <li style={{display:'none'} } id="loading">Loading...</li>
                     {locations.length > 0 ? (
                         locations.map((location, index) => (
-                            <li key={index} className="list-group-item">
-                                {`Suburb: ${location.locationSuburb}, Location ID: ${location.locationId}, Expiations: ${location.expiations}, Road: ${location.road}, camera: ${location.cameraType} `}
+                            <li key={index} className="list-group-item" id="location-item">
+
+                                {`Location ${location.locationId} in ${location.locationSuburb.charAt(0) + location.locationSuburb.slice(1).toLowerCase()} on ${location.road.charAt(0) + location.road.slice(1).toLowerCase() +" " + location.roadType} has ${location.expiations} expiations from a ${location.cameraType1} `}
                                 <input type="checkbox" class="chooseLocation" name="locations" value={ location.locationId}/>
                             </li>
                         ))

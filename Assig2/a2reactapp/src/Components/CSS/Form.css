@@ -4,3 +4,7 @@
 .input-height {
     height: 58px; 
 }
+.list-group-item {
+    background-color: #3c3c3f !important; /* Dark background */
+    color: #e0e0e0 !important; /* Light text color */
+}
