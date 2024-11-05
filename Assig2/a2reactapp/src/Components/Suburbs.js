@@ -38,37 +38,40 @@ const Suburbs = ({ }) => {
     }
     
     async function loadLocations() {
-        let failedCheck = true
+        let failedCheck = false;
         let suburb = document.getElementById('selectSub').value;
         let offence = document.getElementById('offenceSelect').value;
         let date = document.getElementById('dateSelect').value;
         let cameras = document.querySelectorAll('input[name="cameraType"]');
         let selectedCamera = "";
         let locationsWithExpiations = [];
-
+      
         document.getElementById('loading').style.display = 'initial';
         //validation
         if (!suburb) {
             document.getElementById('selectSubError').innerHTML = "Please select a suburb";
+            failedCheck = true;
         } else {
             document.getElementById('selectSubError').innerHTML = "";
-            failedCheck = false;
+            
         }
         if (!offence) {
             document.getElementById('offenceError').innerHTML = "Please select an offence";
+            failedCheck = true;
         } else {
             document.getElementById('offenceError').innerHTML = "";
-            failedCheck = false;
+            
         }
         if (!date) {
             document.getElementById('dateError').innerHTML = "Please select a Date";
+            failedCheck = true;
         } else {
             //convert date
             const jsDate = new Date(date);
             var dateConvert = Math.floor(jsDate.getTime() / 1000);
             
             document.getElementById('dateError').innerHTML = "";
-            failedCheck = false;
+            
         }
         //https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
         for (const cameraButton of cameras) {
@@ -79,14 +82,14 @@ const Suburbs = ({ }) => {
         }
         if (!selectedCamera) {
             document.getElementById('cameraError').innerHTML = "Please select a CameraType";
+            failedCheck = true;
         } else {
             document.getElementById('cameraError').innerHTML = "";
-            failedCheck = false;
         } 
         
 
-
         if (!failedCheck) {
+            
             try {
                 // queries im going to need
                 const locations = await fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`);
@@ -100,25 +103,25 @@ const Suburbs = ({ }) => {
                 let offencesList = ""
                 
                 offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
-                 
-                console.log("locations")
+
+
                 //going into each camera location then merging the location with expiations
                 for (const location of locationData) {
                     try {
-                        console.log(location)
                         if (location.cameraTypeCode == selectedCamera) {
+                            let currentDate = new Date()
+                            let UnixDateNow = Math.floor(currentDate.getTime() / 1000);
                             const camerasCall = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${location.locationId}&cameraTypeCode=${selectedCamera}&startTime=${dateConvert}&endTime=2147483647${offencesList}`);
-                            const cameraData = await camerasCall.json();
+                            const expiationData = await camerasCall.json();
                             //merging data to be displayed 
-                            if (cameraData.length > 0) {
-                                
+                            if (expiationData.length > 0) {
                                 locationsWithExpiations.push({
                                     locationSuburb: location.suburb,
                                     locationId: location.locationId,
-                                    expiations: cameraData.length,
+                                    expiations: expiationData.length,
                                     road: location.roadName,
                                     roadType: location.roadType == null ? ("RD") : (location.roadType),
-                                    cameraType: cameraData[0].cameraTypeCode,
+                                    cameraType: expiationData[0].cameraTypeCode,
                                     cameraType1: location.cameraType1
 
                                 })
@@ -134,10 +137,14 @@ const Suburbs = ({ }) => {
                 setLocations(locationsWithExpiations);
               
             } catch (error) {
+                
+                
                 console.error("Error in fetching data:", error);
+                
             }        
         }
         document.getElementById('loading').style.display = 'none';
+        
     }
 
     return (
@@ -190,7 +197,7 @@ const Suburbs = ({ }) => {
                     <div>
                         <div className="form-check me-3">
                             <input type="radio" className="form-check-input" id="PToP" name="cameraType" value="M" />
-                            <label className="form-check-label" htmlFor="PToP">mobile</label>
+                            <label className="form-check-label" htmlFor="PToP">Mobile</label>
                         </div>
                         <div className="form-check">
                             <input type="radio" className="form-check-input" id="Inter" name="cameraType" value="I/section" />
@@ -213,7 +220,7 @@ const Suburbs = ({ }) => {
                         locations.map((location, index) => (
                             <li key={index} className="list-group-item" id="location-item">
 
-                                {`Location ${location.locationId} in ${location.locationSuburb.charAt(0) + location.locationSuburb.slice(1).toLowerCase()} on ${location.road.charAt(0) + location.road.slice(1).toLowerCase() +" " + location.roadType} has ${location.expiations} expiations from a ${location.cameraType1} `}
+                                {`Camera Location ${location.locationId} in ${location.locationSuburb.charAt(0) + location.locationSuburb.slice(1).toLowerCase()} on ${location.road.charAt(0) + location.road.slice(1).toLowerCase() +" " + location.roadType} has ${location.expiations} expiations from a ${location.cameraType1} `}
                                 <input type="checkbox" class="chooseLocation" name="locations" value={ location.locationId}/>
                             </li>
                         ))

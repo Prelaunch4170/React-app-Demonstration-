@@ -25,7 +25,7 @@ function App() {
         <p>
          Report Page
             118
-
+            65 
         </p>
 
     );
