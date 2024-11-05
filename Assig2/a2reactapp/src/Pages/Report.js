@@ -38,7 +38,7 @@ function App() {
         offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
 
         //#region svg query for 118
-        const Data118 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${118}&cameraTypeCode=${'I/section'}&endTime=2147483647${offencesList}`)
+        const Data118 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
         const Json118 = await Data118.json();
 
 
