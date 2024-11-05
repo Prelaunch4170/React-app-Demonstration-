@@ -25,7 +25,7 @@ root.render(
             <Route path="/" element={<App />}>
                 <Route index element={<Dash />} />
                 <Route path="Dash" element={<Dash />} />
-                <Route path="Report/:firstLoc/:secondLoc/:secondLoc" element={<Report />} />
+                <Route path="Report/:firstLoc/:secondLoc/:camera" element={<Report />} />
             </Route>
         </Routes>
     </BrowserRouter>

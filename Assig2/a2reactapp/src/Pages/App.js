@@ -37,7 +37,7 @@ function App() {
                                 <Link className="nav-link active" to="/Dash"> Dash</Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link active" to="/Report"> Report</Link>
+                                <Link className="nav-link active" to="/Report/118/65/I%2Fsection"> Report</Link>
                             </li>
                             <li className="nav-item">
                                 <Link className="nav-link disabled" to="/login"> Login</Link>

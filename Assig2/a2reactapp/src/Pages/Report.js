@@ -3,7 +3,7 @@ import '../App.css';
 import React, { useEffect, useState } from 'react';
 import SHA256 from 'crypto-js/sha256';
 import Suburbs from '../Components/Suburbs'
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
 
@@ -11,7 +11,8 @@ function App() {
     const isSignedIn = Cookies.get("isSignedIn");
     const navigate = useNavigate();
 
-
+    const { firstLoc, secondLoc, camera } = useParams();
+    console.log(`\n\n\n One: ${firstLoc}\t Two: ${secondLoc}\t camera: ${camera}`)
 
     const offenceSearch = "km/h"
 

@@ -32,7 +32,7 @@ const Suburbs = ({ }) => {
             if (document.querySelectorAll('input[type="checkbox"]:checked').length != 2) {
                 document.getElementById('reportError').innerHTML = "Please select only 2 locations";
             } else {
-                navigate('/Report/118/65/I%2Fsection')
+                navigate(`/Report/118/65/I%2Fsection`)
             }
         }
     }
