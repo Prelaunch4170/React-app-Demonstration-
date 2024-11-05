@@ -38,10 +38,37 @@ function App() {
         const Data118 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${118}&cameraTypeCode=${'I/section'}&endTime=2147483647${offencesList}`)
         const Json118 = await Data118.json();
 
-
         let expiationsByMonth118 = [];
 
+        Json118.forEach(ex => {
+            let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
+            let found = false;
+            if (expiationsByMonth118 === null) {
+                expiationsByMonth118.push({
+                    monthName: monthEx,
+                    expiations: 1
+                })
+            } else {
+                expiationsByMonth118.forEach(month => {
+                    if (month.monthName === monthEx) {
+                        month.expiations += 1;
+                        found = true
+                    }
+                });
+                if (found === false) {
+                    expiationsByMonth118.push({
+                        monthName: monthEx,
+                        expiations: 1
+                    })
+                }
+            }
+
+        })
+
+
     }
+
+
 
     return (
         <div className="container-fluid ">
