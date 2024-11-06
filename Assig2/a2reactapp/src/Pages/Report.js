@@ -41,7 +41,6 @@ function App() {
         const Data118 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
         const Json118 = await Data118.json();
 
-
         //
         let expiationsByMonth118 = [];
 
@@ -81,13 +80,55 @@ function App() {
         console.log(expiationsByMonth118);
         //#endregion
 
+        const Data65 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
+        const Json65 = await Data65.json();
+
+        //
+        let expiationsByMonth65 = [];
+
+        Json65.forEach(ex => {
+            let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
+            let found = false;
+            if (expiationsByMonth65 === null) {
+                expiationsByMonth65.push({
+                    monthName: monthEx,
+                    expiations: 1
+                })
+            } else {
+                expiationsByMonth65.forEach(month => {
+                    if (month.monthName === monthEx) {
+                        month.expiations += 1;
+                        found = true
+                    }
+                });
+                if (found === false) {
+                    expiationsByMonth65.push({
+                        monthName: monthEx,
+                        expiations: 1
+                    })
+                }
+            }
+
+        })
+        //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
+        // making sure its in the right order
+        expiationsByMonth65.sort((a, b) => {
+            const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
+        })
+
+        buildSecondGraph(expiationsByMonth65)
+
+        console.log(expiationsByMonth65);
+        //#endregion
+
     }
 
 
     function buildFirstGraph(dataSet) {
         //#region svg setup
 
-        const svg = d3.select('svg');
+        const svg = d3.select('#graph1');
 
         let w = svg.node().getBoundingClientRect().width;
         let h = svg.node().getBoundingClientRect().height;
@@ -104,7 +145,7 @@ function App() {
         //#endregion
 
         //#region SVG stuff
-        d3.selectAll("svg > *").remove();
+        d3.select('#graph1').selectAll('*').remove();
 
         console.log(dataSet);
         let monthArray = Array.from(dataSet, (d, i) => d.monthName);
@@ -176,6 +217,99 @@ function App() {
 
     }
 
+
+    function buildSecondGraph(dataSet) {
+        //#region svg setup
+
+        const svg = d3.select('#graph2');
+
+        let w = svg.node().getBoundingClientRect().width;
+        let h = svg.node().getBoundingClientRect().height;
+
+        const chartMargins = {
+            left: 40,
+            right: 25,
+            top: 25,
+            bottom: 80
+
+        }
+        h -= (chartMargins.top + chartMargins.bottom);
+        w -= (chartMargins.left + chartMargins.right);
+        //#endregion
+
+        //#region SVG stuff
+        d3.select('#graph2').selectAll('*').remove();
+
+        console.log(dataSet);
+        let monthArray = Array.from(dataSet, (d, i) => d.monthName);
+
+        console.log("array: " + monthArray);
+
+        let totalItemsRange = d3.extent(dataSet, (d, i) => d.expiations);
+        let maxTotalItems = totalItemsRange[1];
+
+        const barMargin = 10;
+        const barWidth = w / dataSet.length;
+
+        let yScale = d3.scaleLinear()
+            .domain([0, maxTotalItems])
+            .range([h, 0]);
+
+        let xScale = d3.scaleBand()
+            .domain(monthArray)
+            .range([0, w])
+            .paddingInner(0.1);
+
+        const chartGroup = svg.append('g')
+            .classed('chartGroup', true)
+            .attr('transform', `translate(${chartMargins.left},${chartMargins.top})`);
+
+        let barGroups = chartGroup
+            .selectAll('g')
+            .data(dataSet);
+
+        let newBarGroups = barGroups.enter()
+            .append('g')
+            .attr('transform', (d, i) => {
+                return `translate(${xScale(d.monthName)}, ${yScale(d.expiations)})`;
+            });
+
+        newBarGroups
+            .append('rect')
+            .attr('x', 0)
+            .attr('height', 0)
+            .attr('y', (d, i) => { return h - yScale(d.expiations); })
+            .attr('width', xScale.bandwidth())
+            .style('fill', 'transparent')
+            .transition().duration((d, i) => i * 300)
+            .delay((d, i) => i + 200)
+            .attr('y', 0)
+            .attr('height', (d, i) => { return h - yScale(d.expiations); })
+            .style('fill', (d, i) => { return `rgb(20,20,${i * 15 + 80})` });
+        newBarGroups
+            .append('text')
+            .attr("text-anchor", "middle")
+            .attr('x', (d, i) => { return xScale.bandwidth() / 2; })
+            .attr('y', 20)
+            .attr('fill', 'white')
+            .style('font-size', '1em')
+            .text((d, i) => d.expiations.toLocaleString());
+
+        //11 create y Axis and save to svg
+        let yAxis = d3.axisLeft(yScale);
+        chartGroup.append('g')
+            .classed('axis y', true)
+            .call(yAxis);
+
+        let xAxis = d3.axisBottom(xScale);
+        chartGroup.append('g')
+            .attr('transform', `translate(10, ${h})`)
+            .classed('axis x', true)
+            .call(xAxis);
+        //#endregion
+
+    }
+
     return (
         <div className="container-fluid ">
             <p>
@@ -183,8 +317,28 @@ function App() {
                 118
                 65 
             </p>
+            <div className="row">
+                <div class="col-lg-6">
+                    <div class="card text-white bg-secondary">
+                        <svg id="graph1" width="100%" height="600px" className="border border-primary rounded p-2"> </svg>
+                        <div class="card-body">
+                            <h5 class="card-title">Special title treatment</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card text-white bg-secondary ">
+                        <svg id="graph2" width="100%" height="600px" className="border border-primary rounded p-2"> </svg>
+                        <div class="card-body">
+                            <h5 class="card-title">Special title treatment</h5>
+                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <svg width="50%" height="600px" className="border border-primary rounded p-2"> </svg>
+            
         </div>
     );
 }
