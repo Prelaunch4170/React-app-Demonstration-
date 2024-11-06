@@ -80,7 +80,7 @@ function App() {
         //#endregion
 
         //#region query for SecondGraph
-        const DataSecondGraph = await fetch(`http://localhost:SecondGraph47/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
+        const DataSecondGraph = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
         const JsonSecondGraph = await DataSecondGraph.json();
 
         
