@@ -36,7 +36,7 @@ function App() {
         let offencesList = ""
 
         offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
-
+        
         //#region svg query for 118
         const Data118 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
         const Json118 = await Data118.json();
@@ -80,29 +80,30 @@ function App() {
         console.log(expiationsByMonth118);
         //#endregion
 
-        const Data65 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
-        const Json65 = await Data65.json();
+        //#region query for 51
+        const Data51 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
+        const Json51 = await Data51.json();
 
-        //
-        let expiationsByMonth65 = [];
+        
+        let expiationsByMonth51 = [];
 
-        Json65.forEach(ex => {
+        Json51.forEach(ex => {
             let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
             let found = false;
-            if (expiationsByMonth65 === null) {
-                expiationsByMonth65.push({
+            if (expiationsByMonth51 === null) {
+                expiationsByMonth51.push({
                     monthName: monthEx,
                     expiations: 1
                 })
             } else {
-                expiationsByMonth65.forEach(month => {
+                expiationsByMonth51.forEach(month => {
                     if (month.monthName === monthEx) {
                         month.expiations += 1;
                         found = true
                     }
                 });
                 if (found === false) {
-                    expiationsByMonth65.push({
+                    expiationsByMonth51.push({
                         monthName: monthEx,
                         expiations: 1
                     })
@@ -112,14 +113,14 @@ function App() {
         })
         //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
         // making sure its in the right order
-        expiationsByMonth65.sort((a, b) => {
+        expiationsByMonth51.sort((a, b) => {
             const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
         })
 
-        buildSecondGraph(expiationsByMonth65)
+        buildSecondGraph(expiationsByMonth51)
 
-        console.log(expiationsByMonth65);
+        console.log(expiationsByMonth51);
         //#endregion
 
     }
@@ -134,7 +135,7 @@ function App() {
         let h = svg.node().getBoundingClientRect().height;
 
         const chartMargins = {
-            left: 40,
+            left: 50,
             right: 25,
             top: 25,
             bottom: 80
@@ -143,78 +144,10 @@ function App() {
         h -= (chartMargins.top + chartMargins.bottom);
         w -= (chartMargins.left + chartMargins.right);
         //#endregion
-
-        //#region SVG stuff
         d3.select('#graph1').selectAll('*').remove();
-
-        console.log(dataSet);
-        let monthArray = Array.from(dataSet, (d, i) => d.monthName);
-
-        console.log("array: " + monthArray);
-
-        let totalItemsRange = d3.extent(dataSet, (d, i) => d.expiations);
-        let maxTotalItems = totalItemsRange[1];
-
-        const barMargin = 10;
-        const barWidth = w / dataSet.length;
-
-        let yScale = d3.scaleLinear()
-            .domain([0, maxTotalItems])
-            .range([h, 0]);
-
-        let xScale = d3.scaleBand()
-            .domain(monthArray)
-            .range([0, w])
-            .paddingInner(0.1);
-
-        const chartGroup = svg.append('g')
-            .classed('chartGroup', true)
-            .attr('transform', `translate(${chartMargins.left},${chartMargins.top})`);
-
-        let barGroups = chartGroup
-            .selectAll('g')
-            .data(dataSet);
-
-        let newBarGroups = barGroups.enter()
-            .append('g')
-            .attr('transform', (d, i) => {
-                return `translate(${xScale(d.monthName)}, ${yScale(d.expiations)})`;
-            });
-
-        newBarGroups
-            .append('rect')
-            .attr('x', 0)
-            .attr('height', 0)
-            .attr('y', (d, i) => { return h - yScale(d.expiations); })
-            .attr('width', xScale.bandwidth())
-            .style('fill', 'transparent')
-            .transition().duration((d, i) => i * 300)
-            .delay((d, i) => i + 200)
-            .attr('y', 0)
-            .attr('height', (d, i) => { return h - yScale(d.expiations); })
-            .style('fill', (d, i) => { return `rgb(20,20,${i * 15 + 80})` });
-        newBarGroups
-            .append('text')
-            .attr("text-anchor", "middle")
-            .attr('x', (d, i) => { return xScale.bandwidth() / 2; })
-            .attr('y', 20)
-            .attr('fill', 'white')
-            .style('font-size', '1em')
-            .text((d, i) => d.expiations.toLocaleString());
-
-        //11 create y Axis and save to svg
-        let yAxis = d3.axisLeft(yScale);
-        chartGroup.append('g')
-            .classed('axis y', true)
-            .call(yAxis);
-
-        let xAxis = d3.axisBottom(xScale);
-        chartGroup.append('g')
-            .attr('transform', `translate(10, ${h})`)
-            .classed('axis x', true)
-            .call(xAxis);
-            //#endregion
-
+        //#region SVG stuff
+        
+        testing(dataSet, svg, w, h, chartMargins);
     }
 
 
@@ -227,7 +160,7 @@ function App() {
         let h = svg.node().getBoundingClientRect().height;
 
         const chartMargins = {
-            left: 40,
+            left: 50,
             right: 25,
             top: 25,
             bottom: 80
@@ -235,11 +168,12 @@ function App() {
         }
         h -= (chartMargins.top + chartMargins.bottom);
         w -= (chartMargins.left + chartMargins.right);
-        //#endregion
-
-        //#region SVG stuff
         d3.select('#graph2').selectAll('*').remove();
-
+        //#endregion
+        testing(dataSet, svg, w, h, chartMargins);
+    }
+    function testing(dataSet, svg, w, h, chartMargins) {
+        //#region SVG stuff
         console.log(dataSet);
         let monthArray = Array.from(dataSet, (d, i) => d.monthName);
 
@@ -285,12 +219,12 @@ function App() {
             .delay((d, i) => i + 200)
             .attr('y', 0)
             .attr('height', (d, i) => { return h - yScale(d.expiations); })
-            .style('fill', (d, i) => { return `rgb(20,20,${i * 15 + 80})` });
+            .style('fill', (d, i) => { return `rgb(23,${i * 20 + 10},${i * 20 + 91})` });
         newBarGroups
             .append('text')
             .attr("text-anchor", "middle")
             .attr('x', (d, i) => { return xScale.bandwidth() / 2; })
-            .attr('y', 20)
+            .attr('y', 16)
             .attr('fill', 'white')
             .style('font-size', '1em')
             .text((d, i) => d.expiations.toLocaleString());
@@ -306,8 +240,23 @@ function App() {
             .attr('transform', `translate(10, ${h})`)
             .classed('axis x', true)
             .call(xAxis);
-        //#endregion
 
+        // labels
+        svg.append('text')
+            .attr('x', w / 2 + chartMargins.left)
+            .attr('y', h + chartMargins.top + chartMargins.bottom - 30)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '1.2em')
+            .text('Months');
+
+        svg.append('text')
+            .attr('transform', `rotate(-90)`)
+            .attr('x', -h / 2 - chartMargins.top)
+            .attr('y', 15)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '1.2em')
+            .text('Expiations');
+        //#endregion
     }
 
     return (
@@ -315,7 +264,7 @@ function App() {
             <p>
              Report Page
                 118
-                65 
+                51 
             </p>
             <div className="row">
                 <div class="col-lg-6">
