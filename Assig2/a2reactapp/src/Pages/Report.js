@@ -38,29 +38,28 @@ function App() {
         offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
         
         //#region svg query for 118
-        const Data118 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
-        const Json118 = await Data118.json();
+        const DataFirstGraph = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
+        const JsonFirstGraph = await DataFirstGraph.json();
 
-        //
-        let expiationsByMonth118 = [];
+        let expiationsByMonthFirstGraph = [];
 
-        Json118.forEach(ex => {
+        JsonFirstGraph.forEach(ex => {
             let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
             let found = false;
-            if (expiationsByMonth118 === null) {
-                expiationsByMonth118.push({
+            if (expiationsByMonthFirstGraph === null) {
+                expiationsByMonthFirstGraph.push({
                     monthName: monthEx,
                     expiations: 1
                 })
             } else {
-                expiationsByMonth118.forEach(month => {
+                expiationsByMonthFirstGraph.forEach(month => {
                     if (month.monthName === monthEx) {
                         month.expiations += 1;
                         found = true
                     }
                 });
                 if (found === false) {
-                    expiationsByMonth118.push({
+                    expiationsByMonthFirstGraph.push({
                         monthName: monthEx,
                         expiations: 1
                     })
@@ -70,40 +69,40 @@ function App() {
         })
         //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
         // making sure its in the right order
-        expiationsByMonth118.sort((a, b) => {
+        expiationsByMonthFirstGraph.sort((a, b) => {
             const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
         })
 
-        buildFirstGraph(expiationsByMonth118)
+        BuildFirstGraph(expiationsByMonthFirstGraph)
         
-        console.log(expiationsByMonth118);
+        console.log(expiationsByMonthFirstGraph);
         //#endregion
 
-        //#region query for 51
-        const Data51 = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
-        const Json51 = await Data51.json();
+        //#region query for SecondGraph
+        const DataSecondGraph = await fetch(`http://localhost:SecondGraph47/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
+        const JsonSecondGraph = await DataSecondGraph.json();
 
         
-        let expiationsByMonth51 = [];
+        let expiationsByMonthSecondGraph = [];
 
-        Json51.forEach(ex => {
+        JsonSecondGraph.forEach(ex => {
             let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
             let found = false;
-            if (expiationsByMonth51 === null) {
-                expiationsByMonth51.push({
+            if (expiationsByMonthSecondGraph === null) {
+                expiationsByMonthSecondGraph.push({
                     monthName: monthEx,
                     expiations: 1
                 })
             } else {
-                expiationsByMonth51.forEach(month => {
+                expiationsByMonthSecondGraph.forEach(month => {
                     if (month.monthName === monthEx) {
                         month.expiations += 1;
                         found = true
                     }
                 });
                 if (found === false) {
-                    expiationsByMonth51.push({
+                    expiationsByMonthSecondGraph.push({
                         monthName: monthEx,
                         expiations: 1
                     })
@@ -113,20 +112,20 @@ function App() {
         })
         //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
         // making sure its in the right order
-        expiationsByMonth51.sort((a, b) => {
+        expiationsByMonthSecondGraph.sort((a, b) => {
             const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
             return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
         })
 
-        buildSecondGraph(expiationsByMonth51)
+        BuildSecondGraph(expiationsByMonthSecondGraph)
 
-        console.log(expiationsByMonth51);
+        console.log(expiationsByMonthSecondGraph);
         //#endregion
 
     }
 
 
-    function buildFirstGraph(dataSet) {
+    function BuildFirstGraph(dataSet) {
         //#region svg setup
 
         const svg = d3.select('#graph1');
@@ -147,11 +146,11 @@ function App() {
         d3.select('#graph1').selectAll('*').remove();
         //#region SVG stuff
         
-        testing(dataSet, svg, w, h, chartMargins);
+        BuildGraph(dataSet, svg, w, h, chartMargins);
     }
 
 
-    function buildSecondGraph(dataSet) {
+    function BuildSecondGraph(dataSet) {
         //#region svg setup
 
         const svg = d3.select('#graph2');
@@ -170,9 +169,9 @@ function App() {
         w -= (chartMargins.left + chartMargins.right);
         d3.select('#graph2').selectAll('*').remove();
         //#endregion
-        testing(dataSet, svg, w, h, chartMargins);
+        BuildGraph(dataSet, svg, w, h, chartMargins);
     }
-    function testing(dataSet, svg, w, h, chartMargins) {
+    function BuildGraph(dataSet, svg, w, h, chartMargins) {
         //#region SVG stuff
         console.log(dataSet);
         let monthArray = Array.from(dataSet, (d, i) => d.monthName);
