@@ -94,15 +94,13 @@ const Suburbs = ({ }) => {
                 const locations = await fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`);
                 const locationData = await locations.json();
 
-                const offencesCall = await fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offence}`)
-                const offenceData = await offencesCall.json();
-
-                
-
                 let offencesList = ""
+                if (offence !== "All") {
+                    var offencesCall = await fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offence}`)
+                    var offenceData = await offencesCall.json();
+                    offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
+                }
                 
-                offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
-
 
                 //going into each camera location then merging the location with expiations
                 for (const location of locationData) {
@@ -163,6 +161,7 @@ const Suburbs = ({ }) => {
                 <div className="col-md-4">
                     <input type="text" className="form-control input-height" list="Offence" placeholder="Input Text" id="offenceSelect"/>
                     <datalist id="Offence">
+                        <option value="All">All</option>
                         <option value="Exceed Signed Speed by 1-9km/h">Exceed Signed Speed by 1-9km/h</option>
                         <option value="Exceed Signed Speed by 10-19km/h">Exceed Signed Speed by 10-19km/h</option>
                         <option value="Exceed Signed Speed by 20-29km/h">Exceed Signed Speed by 20-29km/h</option>
@@ -231,5 +230,8 @@ const Suburbs = ({ }) => {
         </div>
     )
 }
+
+
+
 
 export default Suburbs

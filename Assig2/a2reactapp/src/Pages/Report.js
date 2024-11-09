@@ -37,7 +37,7 @@ function App() {
 
         offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
         
-        //#region svg query for 118
+        //#region svg query for First graph
         const DataFirstGraph = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
         const JsonFirstGraph = await DataFirstGraph.json();
 
@@ -74,7 +74,7 @@ function App() {
             return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
         })
 
-        BuildFirstGraph(expiationsByMonthFirstGraph)
+        BuildFirstGraph(expiationsByMonthFirstGraph, firstLoc )
         
         console.log(expiationsByMonthFirstGraph);
         //#endregion
@@ -117,7 +117,7 @@ function App() {
             return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
         })
 
-        BuildSecondGraph(expiationsByMonthSecondGraph)
+        BuildSecondGraph(expiationsByMonthSecondGraph, secondLoc)
 
         console.log(expiationsByMonthSecondGraph);
         //#endregion
@@ -125,7 +125,7 @@ function App() {
     }
 
 
-    function BuildFirstGraph(dataSet) {
+    function BuildFirstGraph(dataSet, titleText) {
         //#region svg setup
 
         const svg = d3.select('#graph1');
@@ -142,15 +142,39 @@ function App() {
         }
         h -= (chartMargins.top + chartMargins.bottom);
         w -= (chartMargins.left + chartMargins.right);
-        //#endregion
         d3.select('#graph1').selectAll('*').remove();
-        //#region SVG stuff
+        //#endregion
         
+        //#region labels
+
+        svg.append('text')
+            .attr('x', w / 2 + chartMargins.left)
+            .attr('y', h + chartMargins.top + chartMargins.bottom - 30)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '1.2em')
+            .text('Months');
+
+        svg.append('text')
+            .attr('transform', `rotate(-90)`)
+            .attr('x', -h / 2 - chartMargins.top)
+            .attr('y', 15)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '1.2em')
+            .text('Expiations');
+
+        svg.append('text')
+            .attr('x', w / 2 + chartMargins.left)  // Center the title
+            .attr('y', chartMargins.top / 2)  // Position above the chart
+            .attr('text-anchor', 'middle')
+            .style('font-size', '1.2em')
+            .style('font-weight', 'bold')
+            .text(`Location ${titleText}`);
+            //#endregion
         BuildGraph(dataSet, svg, w, h, chartMargins);
     }
 
 
-    function BuildSecondGraph(dataSet) {
+    function BuildSecondGraph(dataSet, titleText) {
         //#region svg setup
 
         const svg = d3.select('#graph2');
@@ -161,7 +185,7 @@ function App() {
         const chartMargins = {
             left: 50,
             right: 25,
-            top: 25,
+            top: 30,
             bottom: 80
 
         }
@@ -169,9 +193,34 @@ function App() {
         w -= (chartMargins.left + chartMargins.right);
         d3.select('#graph2').selectAll('*').remove();
         //#endregion
+        //#region labels
+        svg.append('text')
+            .attr('x', w / 2 + chartMargins.left)
+            .attr('y', h + chartMargins.top + chartMargins.bottom - 30)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '1.2em')
+            .text('Months');
+
+        svg.append('text')
+            .attr('transform', `rotate(-90)`)
+            .attr('x', -h / 2 - chartMargins.top)
+            .attr('y', 15)
+            .attr('text-anchor', 'middle')
+            .style('font-size', '1.2em')
+            .text('Expiations');
+
+        svg.append('text')
+            .attr('x', w / 2 + chartMargins.left)  // Center the title
+            .attr('y', chartMargins.top / 2)  // Position above the chart
+            .attr('text-anchor', 'middle')
+            .style('font-size', '1.2em')
+            .style('font-weight', 'bold')
+            .text(`Location ${titleText}`);
+            //#endregion
+        
         BuildGraph(dataSet, svg, w, h, chartMargins);
     }
-    function BuildGraph(dataSet, svg, w, h, chartMargins) {
+    function BuildGraph(dataSet, svg, w, h, chartMargins, titleText) {
         //#region SVG stuff
         console.log(dataSet);
         let monthArray = Array.from(dataSet, (d, i) => d.monthName);
@@ -241,20 +290,6 @@ function App() {
             .call(xAxis);
 
         // labels
-        svg.append('text')
-            .attr('x', w / 2 + chartMargins.left)
-            .attr('y', h + chartMargins.top + chartMargins.bottom - 30)
-            .attr('text-anchor', 'middle')
-            .style('font-size', '1.2em')
-            .text('Months');
-
-        svg.append('text')
-            .attr('transform', `rotate(-90)`)
-            .attr('x', -h / 2 - chartMargins.top)
-            .attr('y', 15)
-            .attr('text-anchor', 'middle')
-            .style('font-size', '1.2em')
-            .text('Expiations');
         //#endregion
     }
 
