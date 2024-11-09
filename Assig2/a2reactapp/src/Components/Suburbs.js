@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react'
+﻿import React, { useEffect, useState } from 'react'
 import './CSS/Form.css'
 import { useNavigate } from 'react-router-dom';
 
@@ -9,7 +9,6 @@ const Suburbs = ({ }) => {
     const [locations, setLocations] = useState([]);
     const navigate = useNavigate();
     
-
 
     React.useEffect(() => {
         fetch("http://localhost:5147/api/Get_ListCameraSuburbs")
@@ -36,8 +35,87 @@ const Suburbs = ({ }) => {
             }
         }
     }
-    
+
+    const [searchSuburb, setSearchSuburb] = useState('');
+    const [searchSuburbD, setSuburbData] = useState([]);//need for last query
+    React.useEffect(() => {
+        console.log(searchSuburb)
+        if (searchSuburb) {
+            fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${searchSuburb}`)
+                .then(response => response.json())
+                .then(data => setSuburbData(data));
+            console.log("testing fetch: \n" + searchSuburbD)
+        }
+
+    }, [searchSuburb]);
+
+    const [searchOffence, setSearchOffence] = useState('');
+    const [offenceSearchQuery, setOffenceSearchQuery] = useState('');//need for last query
+    React.useEffect(() => {
+        if (searchOffence && searchOffence !== "All") {
+            console.log("\nSpecific\n")
+            fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${searchOffence}`)
+                .then(response => response.json())
+                .then(data => {
+                    let offenceQuery = "";
+
+                    data.forEach(offence => offenceQuery += `&offenceCodes=${offence.offenceCode}`)
+                    
+                    setOffenceSearchQuery(offenceQuery)
+                })
+        } else if (searchOffence && searchOffence === "All"){
+            setOffenceSearchQuery('');
+            console.log("All\n")
+        }
+        console.log("\nTesting query\n"+offenceSearchQuery)
+
+    }, [searchOffence])
+    const [searchDate, setSearchDate] = useState('');
+    const [searchCamera, setsearchCamera] = useState('');
+
+    React.useEffect(() => {
+        let currentDate = new Date();
+        let UnixDateNow = Math.floor(currentDate.getTime() / 1000);
+        let locationsWithExpiationss = [];
+
+        // Gather all fetch promises
+        
+        for (const locationa of searchSuburbD) {
+            console.log("\n\n this:\n" + JSON.stringify( locationa))
+        }
+        const fetchPromises = searchSuburbD
+            .filter(location => location.cameraTypeCode === searchCamera) // Filter relevant locations
+            .map(location => {
+                return fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${location.locationId}&cameraTypeCode=${searchCamera}&startTime=${searchDate}&endTime=2147483647${offenceSearchQuery}`)
+                    .then(response => response.json())
+                    .then(expiationData => {
+                        if (expiationData.length > 0) {
+                            locationsWithExpiationss.push({
+                                locationSuburb: location.suburb,
+                                locationId: location.locationId,
+                                expiations: expiationData.length,
+                                road: location.roadName,
+                                roadType: location.roadType || "RD",
+                                cameraType: expiationData[0].cameraTypeCode,
+                                cameraType1: location.cameraType1,
+                            });
+                        }
+                    });
+            });
+
+        // Wait for all fetches to complete
+        Promise.all(fetchPromises).then(() => {
+            console.log("Final locations with expiations:", locationsWithExpiationss);
+
+            locationsWithExpiationss.sort((a, b) => b.expiations - a.expiations);
+            setLocations(locationsWithExpiationss);
+            document.getElementById('loading').style.display = 'none';
+            
+        });
+    }, [searchSuburbD, offenceSearchQuery, searchDate, searchCamera]);
     async function loadLocations() {
+
+        //#region validation
         let failedCheck = false;
         let suburb = document.getElementById('selectSub').value;
         let offence = document.getElementById('offenceSelect').value;
@@ -47,7 +125,8 @@ const Suburbs = ({ }) => {
         let locationsWithExpiations = [];
       
         document.getElementById('loading').style.display = 'initial';
-        //validation
+      
+        
         if (!suburb) {
             document.getElementById('selectSubError').innerHTML = "Please select a suburb";
             failedCheck = true;
@@ -85,60 +164,15 @@ const Suburbs = ({ }) => {
         } else {
             document.getElementById('cameraError').innerHTML = "";
         } 
-        
-
+        //#endregion
+        //console.log(failedCheck)
         if (!failedCheck) {
-            
-            try {
-                // queries im going to need
-                const locations = await fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${suburb}`);
-                const locationData = await locations.json();
 
-                let offencesList = ""
-                if (offence !== "All") {
-                    var offencesCall = await fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offence}`)
-                    var offenceData = await offencesCall.json();
-                    offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
-                }
-                
-
-                //going into each camera location then merging the location with expiations
-                for (const location of locationData) {
-                    try {
-                        if (location.cameraTypeCode == selectedCamera) {
-                            let currentDate = new Date()
-                            let UnixDateNow = Math.floor(currentDate.getTime() / 1000);
-                            const camerasCall = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${location.locationId}&cameraTypeCode=${selectedCamera}&startTime=${dateConvert}&endTime=2147483647${offencesList}`);
-                            const expiationData = await camerasCall.json();
-                            //merging data to be displayed 
-                            if (expiationData.length > 0) {
-                                locationsWithExpiations.push({
-                                    locationSuburb: location.suburb,
-                                    locationId: location.locationId,
-                                    expiations: expiationData.length,
-                                    road: location.roadName,
-                                    roadType: location.roadType == null ? ("RD") : (location.roadType),
-                                    cameraType: expiationData[0].cameraTypeCode,
-                                    cameraType1: location.cameraType1
-
-                                })
-                            }
-                        }
-                        
-                    } catch (err) {
-                        console.error(`Error fetching for locationId ${location.locationId}:`, err);
-                    }
-                }
-                //sort by number of expiations https://www.javascripttutorial.net/array/javascript-sort-an-array-of-objects/
-                locationsWithExpiations.sort((a, b) => b.expiations - a.expiations);
-                setLocations(locationsWithExpiations);
-              
-            } catch (error) {
-                
-                
-                console.error("Error in fetching data:", error);
-                
-            }        
+            setSearchSuburb(suburb);
+            setSearchOffence(offence);
+            setSearchDate(dateConvert);
+            setsearchCamera(selectedCamera);
+                  
         }
         document.getElementById('loading').style.display = 'none';
         
