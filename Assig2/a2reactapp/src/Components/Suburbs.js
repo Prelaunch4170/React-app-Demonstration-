@@ -10,7 +10,7 @@ const Suburbs = ({ }) => {
     const navigate = useNavigate();
     
 
-    React.useEffect(() => {
+    useEffect(() => {
         fetch("http://localhost:5147/api/Get_ListCameraSuburbs")
             .then(response => response.json())
             .then(data => setState(data))
@@ -28,7 +28,7 @@ const Suburbs = ({ }) => {
             document.getElementById('reportError').innerHTML = "Please fill fields";
         } else {
             //https://stackoverflow.com/a/22938796
-            if (document.querySelectorAll('input[type="checkbox"]:checked').length != 2) {
+            if (document.querySelectorAll('input[type="checkbox"]:checked').length !== 2) {
                 document.getElementById('reportError').innerHTML = "Please select only 2 locations";
             } else {
                 navigate(`/Report/118/51/I%2Fsection`)
@@ -36,22 +36,29 @@ const Suburbs = ({ }) => {
         }
     }
 
+    //#region getting cameras in suburbs
     const [searchSuburb, setSearchSuburb] = useState('');
     const [searchSuburbD, setSuburbData] = useState([]);//need for last query
-    React.useEffect(() => {
+    useEffect(() => {
         console.log(searchSuburb)
         if (searchSuburb) {
             fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${searchSuburb}`)
                 .then(response => response.json())
                 .then(data => setSuburbData(data));
-            console.log("testing fetch: \n" + searchSuburbD)
+            
         }
 
     }, [searchSuburb]);
 
+    //#endregion
+
+
+    //#region getting and making offence query
     const [searchOffence, setSearchOffence] = useState('');
     const [offenceSearchQuery, setOffenceSearchQuery] = useState('');//need for last query
-    React.useEffect(() => {
+
+    
+    useEffect(() => {
         if (searchOffence && searchOffence !== "All") {
             console.log("\nSpecific\n")
             fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${searchOffence}`)
@@ -67,13 +74,17 @@ const Suburbs = ({ }) => {
             setOffenceSearchQuery('');
             console.log("All\n")
         }
-        console.log("\nTesting query\n"+offenceSearchQuery)
+       
 
     }, [searchOffence])
+
+    //#endregion
+
+    //#region main query to get data
     const [searchDate, setSearchDate] = useState('');
     const [searchCamera, setsearchCamera] = useState('');
 
-    React.useEffect(() => {
+    useEffect(() => {
         let currentDate = new Date();
         let UnixDateNow = Math.floor(currentDate.getTime() / 1000);
         let locationsWithExpiationss = [];
@@ -83,6 +94,7 @@ const Suburbs = ({ }) => {
         for (const locationa of searchSuburbD) {
             console.log("\n\n this:\n" + JSON.stringify( locationa))
         }
+        console.log(offenceSearchQuery) 
         const fetchPromises = searchSuburbD
             .filter(location => location.cameraTypeCode === searchCamera) // Filter relevant locations
             .map(location => {
@@ -105,7 +117,7 @@ const Suburbs = ({ }) => {
 
         // Wait for all fetches to complete
         Promise.all(fetchPromises).then(() => {
-            console.log("Final locations with expiations:", locationsWithExpiationss);
+            //console.log("Final locations with expiations:", locationsWithExpiationss);
 
             locationsWithExpiationss.sort((a, b) => b.expiations - a.expiations);
             setLocations(locationsWithExpiationss);
@@ -113,7 +125,9 @@ const Suburbs = ({ }) => {
             
         });
     }, [searchSuburbD, offenceSearchQuery, searchDate, searchCamera]);
-    async function loadLocations() {
+
+    //#endregion
+    function loadLocations() {
 
         //#region validation
         let failedCheck = false;
@@ -122,7 +136,7 @@ const Suburbs = ({ }) => {
         let date = document.getElementById('dateSelect').value;
         let cameras = document.querySelectorAll('input[name="cameraType"]');
         let selectedCamera = "";
-        let locationsWithExpiations = [];
+        
       
         document.getElementById('loading').style.display = 'initial';
       
@@ -174,7 +188,7 @@ const Suburbs = ({ }) => {
             setsearchCamera(selectedCamera);
                   
         }
-        document.getElementById('loading').style.display = 'none';
+        
         
     }
 

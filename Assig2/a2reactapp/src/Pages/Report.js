@@ -15,115 +15,125 @@ function App() {
     console.log(`\n\n\n One: ${firstLoc}\t Two: ${secondLoc}\t camera: ${camera}`)
 
     const offenceSearch = "km/h"
+    const [offenceSearchQuery, setOffenceSearchQuery] = useState('');
 
+    const [firstLocationData, setFirstLocation] = useState([]);
+    const [secondLocationData, setSecondLocation] = useState([]);
+    //#region sign in and startup stuff
     useEffect(() => {
         if (!isSignedIn) {
             navigate("/login");
         } else {
             document.getElementById('name').innerHTML = "Hello " + Cookies.get('Name');
-            fetchData();
+            let offenceQuerys = ''
+            if (offenceSearch && offenceSearch !== "All") {
+                console.log("\nSpecific\n")
+                fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offenceSearch}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let offenceQuery = "";
+
+                        data.forEach(offence => offenceQuery += `&offenceCodes=${offence.offenceCode}`)
+
+                        setOffenceSearchQuery(offenceQuery)
+                    });
+            } else if (offenceSearch && offenceSearch === "All") {
+                setOffenceSearchQuery('');
+                console.log("All\n")
+            }
         }
-    })
+    }, [isSignedIn, offenceSearch, navigate])
+    //#endregion
+
+    //#region get data
+    useEffect(() => {
+        console.log(offenceSearchQuery)
+        //#region first graph
+        fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offenceSearchQuery}`)
+            .then(response => response.json())
+            .then(JsonFirstGraph => {
+                let expiationsByMonthFirstGraph = [];
+                JsonFirstGraph.forEach(ex => {
+                    let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
+                    let found = false;
+                    if (expiationsByMonthFirstGraph === null) {
+                        expiationsByMonthFirstGraph.push({
+                            monthName: monthEx,
+                            expiations: 1
+                        })
+                    } else {
+                        expiationsByMonthFirstGraph.forEach(month => {
+                            if (month.monthName === monthEx) {
+                                month.expiations += 1;
+                                found = true
+                            }
+                        });
+                        if (found === false) {
+                            expiationsByMonthFirstGraph.push({
+                                monthName: monthEx,
+                                expiations: 1
+                            })
+                        }
+                    }
+                })
+                //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
+                // making sure its in the right order
+                expiationsByMonthFirstGraph.sort((a, b) => {
+                    const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
+                })
+
+                BuildFirstGraph(expiationsByMonthFirstGraph, firstLoc)
+            })
+            //#endregion
+            //#region second graph
+            fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offenceSearchQuery}`)
+                .then(response => response.json())
+                .then(JsonSecondGraph => {
+                    let expiationsByMonthSecondGraph = [];
+                    JsonSecondGraph.forEach(ex => {
+                        let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
+                        let found = false;
+                        if (expiationsByMonthSecondGraph === null) {
+                            expiationsByMonthSecondGraph.push({
+                                monthName: monthEx,
+                                expiations: 1
+                            })
+                        } else {
+                            expiationsByMonthSecondGraph.forEach(month => {
+                                if (month.monthName === monthEx) {
+                                    month.expiations += 1;
+                                    found = true
+                                }
+                            });
+                            if (found === false) {
+                                expiationsByMonthSecondGraph.push({
+                                    monthName: monthEx,
+                                    expiations: 1
+                                })
+                            }
+                        }
+                    })
+                    //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
+                    // making sure its in the right order
+                    expiationsByMonthSecondGraph.sort((a, b) => {
+                        const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                        return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
+                    })
+
+                    BuildSecondGraph(expiationsByMonthSecondGraph, secondLoc)
+                })
+            
+
+            //#endregion
+    }, [offenceSearchQuery, camera, firstLoc, secondLoc])
+
+    //#endregion
     function SignOut() {
         Cookies.remove('isSignedIn');
         Cookies.remove('Name');
         window.location.reload();
     }
-
-    async function fetchData() {
-        const offencesCall = await fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offenceSearch}`)
-        const offenceData = await offencesCall.json();
-        let offencesList = ""
-
-        offenceData.forEach(offence => offencesList += `&offenceCodes=${offence.offenceCode}`)
-        
-        //#region svg query for First graph
-        const DataFirstGraph = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
-        const JsonFirstGraph = await DataFirstGraph.json();
-
-        let expiationsByMonthFirstGraph = [];
-
-        JsonFirstGraph.forEach(ex => {
-            let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
-            let found = false;
-            if (expiationsByMonthFirstGraph === null) {
-                expiationsByMonthFirstGraph.push({
-                    monthName: monthEx,
-                    expiations: 1
-                })
-            } else {
-                expiationsByMonthFirstGraph.forEach(month => {
-                    if (month.monthName === monthEx) {
-                        month.expiations += 1;
-                        found = true
-                    }
-                });
-                if (found === false) {
-                    expiationsByMonthFirstGraph.push({
-                        monthName: monthEx,
-                        expiations: 1
-                    })
-                }
-            }
-
-        })
-        //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
-        // making sure its in the right order
-        expiationsByMonthFirstGraph.sort((a, b) => {
-            const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
-        })
-
-        BuildFirstGraph(expiationsByMonthFirstGraph, firstLoc )
-        
-        console.log(expiationsByMonthFirstGraph);
-        //#endregion
-
-        //#region query for SecondGraph
-        const DataSecondGraph = await fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offencesList}`)
-        const JsonSecondGraph = await DataSecondGraph.json();
-
-        
-        let expiationsByMonthSecondGraph = [];
-
-        JsonSecondGraph.forEach(ex => {
-            let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
-            let found = false;
-            if (expiationsByMonthSecondGraph === null) {
-                expiationsByMonthSecondGraph.push({
-                    monthName: monthEx,
-                    expiations: 1
-                })
-            } else {
-                expiationsByMonthSecondGraph.forEach(month => {
-                    if (month.monthName === monthEx) {
-                        month.expiations += 1;
-                        found = true
-                    }
-                });
-                if (found === false) {
-                    expiationsByMonthSecondGraph.push({
-                        monthName: monthEx,
-                        expiations: 1
-                    })
-                }
-            }
-
-        })
-        //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
-        // making sure its in the right order
-        expiationsByMonthSecondGraph.sort((a, b) => {
-            const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-            return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
-        })
-
-        BuildSecondGraph(expiationsByMonthSecondGraph, secondLoc)
-
-        console.log(expiationsByMonthSecondGraph);
-        //#endregion
-
-    }
-
 
     function BuildFirstGraph(dataSet, titleText) {
         //#region svg setup
@@ -170,7 +180,7 @@ function App() {
             .style('font-weight', 'bold')
             .text(`Location ${titleText}`);
             //#endregion
-        BuildGraph(dataSet, svg, w, h, chartMargins);
+        DisplayGraph(dataSet, svg, w, h, chartMargins);
     }
 
 
@@ -218,9 +228,10 @@ function App() {
             .text(`Location ${titleText}`);
             //#endregion
         
-        BuildGraph(dataSet, svg, w, h, chartMargins);
+        DisplayGraph(dataSet, svg, w, h, chartMargins);
     }
-    function BuildGraph(dataSet, svg, w, h, chartMargins, titleText) {
+
+    function DisplayGraph(dataSet, svg, w, h, chartMargins, titleText) {
         //#region SVG stuff
         console.log(dataSet);
         let monthArray = Array.from(dataSet, (d, i) => d.monthName);
