@@ -31,7 +31,12 @@ const Suburbs = ({ }) => {
             if (document.querySelectorAll('input[type="checkbox"]:checked').length !== 2) {
                 document.getElementById('reportError').innerHTML = "Please select only 2 locations";
             } else {
-                navigate(`/Report/118/51/I%2Fsection`)
+                //actual implamentation
+                //let location1 = document.querySelectorAll('input[type="checkbox"]:checked')[0].value
+                //let location2 = document.querySelectorAll('input[type="checkbox"]:checked')[1].value
+                //navigate(`/Report/${location1}/${location2}/${encodeURIComponent(searchCamera)}/${encodeURIComponent(searchOffence)}`)
+                //to test report
+                navigate(`/Report/118/51/${encodeURIComponent(searchCamera)}/${encodeURIComponent(searchOffence)}`)
             }
         }
     }
@@ -40,7 +45,7 @@ const Suburbs = ({ }) => {
     const [searchSuburb, setSearchSuburb] = useState('');
     const [searchSuburbD, setSuburbData] = useState([]);//need for last query
     useEffect(() => {
-        console.log(searchSuburb)
+        
         if (searchSuburb) {
             fetch(`http://localhost:5147/api/Get_ListCamerasInSuburb?suburb=${searchSuburb}`)
                 .then(response => response.json())
@@ -60,7 +65,7 @@ const Suburbs = ({ }) => {
     
     useEffect(() => {
         if (searchOffence && searchOffence !== "All") {
-            console.log("\nSpecific\n")
+            
             fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${searchOffence}`)
                 .then(response => response.json())
                 .then(data => {
@@ -72,7 +77,7 @@ const Suburbs = ({ }) => {
                 })
         } else if (searchOffence && searchOffence === "All"){
             setOffenceSearchQuery('');
-            console.log("All\n")
+            
         }
        
 
@@ -92,9 +97,9 @@ const Suburbs = ({ }) => {
         // Gather all fetch promises
         
         for (const locationa of searchSuburbD) {
-            console.log("\n\n this:\n" + JSON.stringify( locationa))
+            
         }
-        console.log(offenceSearchQuery) 
+         
         const fetchPromises = searchSuburbD
             .filter(location => location.cameraTypeCode === searchCamera) // Filter relevant locations
             .map(location => {
@@ -209,6 +214,7 @@ const Suburbs = ({ }) => {
                 <div className="col-md-4">
                     <input type="text" className="form-control input-height" list="Offence" placeholder="Input Text" id="offenceSelect"/>
                     <datalist id="Offence">
+                        {/* mark has said having some hard coded options is fine, this is what i find most interesting */}
                         <option value="All">All</option>
                         <option value="Exceed Signed Speed by 1-9km/h">Exceed Signed Speed by 1-9km/h</option>
                         <option value="Exceed Signed Speed by 10-19km/h">Exceed Signed Speed by 10-19km/h</option>

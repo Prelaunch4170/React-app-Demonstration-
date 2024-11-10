@@ -14,11 +14,11 @@ function App() {
     const isSignedIn = Cookies.get("isSignedIn");
     const navigate = useNavigate();
 
-    const { firstLoc, secondLoc, camera } = useParams();
+    const { firstLoc, secondLoc, camera, offenceSearch } = useParams();
     
 
-    const offenceSearch = "km/h"
-    const [offenceSearchQuery, setOffenceSearchQuery] = useState('');
+    
+    const [offenceSearchQuery, setOffenceSearchQuery] = useState(null);
 
     const [firstLocationData, setFirstLocation] = useState([]);
     const [secondLocationData, setSecondLocation] = useState([]);
@@ -58,62 +58,16 @@ function App() {
     const firstMapInstance = useRef(null);
     const secondMapInstance = useRef(null);
 
-    useEffect(() => {
-        window.L.mapquest.key = 'DlH6riSTsISPFbxxU95Cjna1S2YcTKZW';
-        
-
-
-        window.L.mapquest.geocoding().geocode('Grote street/west terrace, Adelaide, SA', createFirstMap);
-        function createFirstMap(error, response) {
-            if (loadedFirst.current === false) {
-                loadedFirst.current = true;
-                console.log(loadedFirst)
-                var location = response.results[0].locations[0];
-                var latLng = location.displayLatLng;
-                firstMapInstance.current = window.L.mapquest.map('map1', {
-                    center: latLng,
-                    layers: window.L.mapquest.tileLayer('dark'),
-                    zoom: 14
-                });
-
-                var customIcon = window.L.mapquest.icons.flag({
-                    primaryColor: '#3b5998',
-                    symbol: `${firstLoc}`
-                });
-                window.L.marker(latLng, { icon: customIcon }).addTo(firstMapInstance.current);
-                
-            }
-
-        }
-
-
-        window.L.mapquest.geocoding().geocode('Greenhill road/hutt road, Adelaide, SA', createSecondMap);
-        function createSecondMap(error, response) {
-            if (loadedSecond.current === false) {
-                loadedSecond.current = true;
-                console.log(loadedSecond)
-                var location = response.results[0].locations[0];
-                var latLng = location.displayLatLng;
-                secondMapInstance.current = window.L.mapquest.map('map2', {
-                    center: latLng,
-                    layers: window.L.mapquest.tileLayer('dark'),
-                    zoom: 14
-                });
-
-                var customIcon = window.L.mapquest.icons.flag({
-                    primaryColor: '#3b5998',
-                    symbol: `${secondLoc}`
-                });
-                window.L.marker(latLng, { icon: customIcon }).addTo(secondMapInstance.current);
-            }
-
-        }
-    })
+    
 
 
     //#region get data
     useEffect(() => {
-       
+        console.log(offenceSearchQuery)
+        if (offenceSearchQuery !== null) {
+
+        
+
         //#region first graph
         fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offenceSearchQuery}`)
             .then(response => response.json())
@@ -189,7 +143,8 @@ function App() {
 
                 BuildSecondGraph(expiationsByMonthSecondGraph, secondLoc)
             })
-        //#endregion
+            //#endregion
+        }
     }, [offenceSearchQuery, camera, firstLoc, secondLoc])
 
     //#endregion
@@ -369,7 +324,57 @@ function App() {
     }
 
     
+    useEffect(() => {
+        window.L.mapquest.key = 'DlH6riSTsISPFbxxU95Cjna1S2YcTKZW';
 
+
+
+        window.L.mapquest.geocoding().geocode('Grote street/west terrace, Adelaide, SA', createFirstMap);
+        function createFirstMap(error, response) {
+            if (loadedFirst.current === false) {
+                loadedFirst.current = true;
+                console.log(loadedFirst)
+                var location = response.results[0].locations[0];
+                var latLng = location.displayLatLng;
+                firstMapInstance.current = window.L.mapquest.map('map1', {
+                    center: latLng,
+                    layers: window.L.mapquest.tileLayer('dark'),
+                    zoom: 14
+                });
+
+                var customIcon = window.L.mapquest.icons.flag({
+                    primaryColor: '#3b5998',
+                    symbol: `${firstLoc}`
+                });
+                window.L.marker(latLng, { icon: customIcon }).addTo(firstMapInstance.current);
+
+            }
+
+        }
+
+
+        window.L.mapquest.geocoding().geocode('Greenhill road/hutt road, Adelaide, SA', createSecondMap);
+        function createSecondMap(error, response) {
+            if (loadedSecond.current === false) {
+                loadedSecond.current = true;
+                console.log(loadedSecond)
+                var location = response.results[0].locations[0];
+                var latLng = location.displayLatLng;
+                secondMapInstance.current = window.L.mapquest.map('map2', {
+                    center: latLng,
+                    layers: window.L.mapquest.tileLayer('dark'),
+                    zoom: 14
+                });
+
+                var customIcon = window.L.mapquest.icons.flag({
+                    primaryColor: '#3b5998',
+                    symbol: `${secondLoc}`
+                });
+                window.L.marker(latLng, { icon: customIcon }).addTo(secondMapInstance.current);
+            }
+
+        }
+    })
 
 
     return (
