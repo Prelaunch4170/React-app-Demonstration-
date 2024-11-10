@@ -1,18 +1,21 @@
 ﻿import logo from '../Images/sapolice.png';
 import '../App.css';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import SHA256 from 'crypto-js/sha256';
 import Suburbs from '../Components/Suburbs'
 import { Link, Outlet, useNavigate, useParams } from 'react-router-dom';
 import Cookies from 'js-cookie';
 import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7/+esm';
 
+
+
+
 function App() {
     const isSignedIn = Cookies.get("isSignedIn");
     const navigate = useNavigate();
 
     const { firstLoc, secondLoc, camera } = useParams();
-    console.log(`\n\n\n One: ${firstLoc}\t Two: ${secondLoc}\t camera: ${camera}`)
+    
 
     const offenceSearch = "km/h"
     const [offenceSearchQuery, setOffenceSearchQuery] = useState('');
@@ -26,8 +29,12 @@ function App() {
         } else {
             document.getElementById('name').innerHTML = "Hello " + Cookies.get('Name');
             let offenceQuerys = ''
+            if (window.L.mapquest.mapInstance) {
+                window.L.mapquest.mapInstance.remove();
+                delete window.L.mapquest.mapInstance;
+            }
             if (offenceSearch && offenceSearch !== "All") {
-                console.log("\nSpecific\n")
+                
                 fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offenceSearch}`)
                     .then(response => response.json())
                     .then(data => {
@@ -39,15 +46,74 @@ function App() {
                     });
             } else if (offenceSearch && offenceSearch === "All") {
                 setOffenceSearchQuery('');
-                console.log("All\n")
+                
             }
+
+         
         }
     }, [isSignedIn, offenceSearch, navigate])
     //#endregion
+    var loadedFirst = useRef(false);
+    var loadedSecond = useRef(false);
+    const firstMapInstance = useRef(null);
+    const secondMapInstance = useRef(null);
+
+    useEffect(() => {
+        window.L.mapquest.key = 'DlH6riSTsISPFbxxU95Cjna1S2YcTKZW';
+        
+
+
+        window.L.mapquest.geocoding().geocode('Grote street/west terrace, Adelaide, SA', createFirstMap);
+        function createFirstMap(error, response) {
+            if (loadedFirst.current === false) {
+                loadedFirst.current = true;
+                console.log(loadedFirst)
+                var location = response.results[0].locations[0];
+                var latLng = location.displayLatLng;
+                firstMapInstance.current = window.L.mapquest.map('map1', {
+                    center: latLng,
+                    layers: window.L.mapquest.tileLayer('dark'),
+                    zoom: 14
+                });
+
+                var customIcon = window.L.mapquest.icons.flag({
+                    primaryColor: '#3b5998',
+                    symbol: `${firstLoc}`
+                });
+                window.L.marker(latLng, { icon: customIcon }).addTo(firstMapInstance.current);
+                
+            }
+
+        }
+
+
+        window.L.mapquest.geocoding().geocode('Greenhill road/hutt road, Adelaide, SA', createSecondMap);
+        function createSecondMap(error, response) {
+            if (loadedSecond.current === false) {
+                loadedSecond.current = true;
+                console.log(loadedSecond)
+                var location = response.results[0].locations[0];
+                var latLng = location.displayLatLng;
+                secondMapInstance.current = window.L.mapquest.map('map2', {
+                    center: latLng,
+                    layers: window.L.mapquest.tileLayer('dark'),
+                    zoom: 14
+                });
+
+                var customIcon = window.L.mapquest.icons.flag({
+                    primaryColor: '#3b5998',
+                    symbol: `${secondLoc}`
+                });
+                window.L.marker(latLng, { icon: customIcon }).addTo(secondMapInstance.current);
+            }
+
+        }
+    })
+
 
     //#region get data
     useEffect(() => {
-        console.log(offenceSearchQuery)
+       
         //#region first graph
         fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offenceSearchQuery}`)
             .then(response => response.json())
@@ -86,46 +152,44 @@ function App() {
                 BuildFirstGraph(expiationsByMonthFirstGraph, firstLoc)
             })
             //#endregion
-            //#region second graph
-            fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offenceSearchQuery}`)
-                .then(response => response.json())
-                .then(JsonSecondGraph => {
-                    let expiationsByMonthSecondGraph = [];
-                    JsonSecondGraph.forEach(ex => {
-                        let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
-                        let found = false;
-                        if (expiationsByMonthSecondGraph === null) {
+        //#region second graph
+        fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${secondLoc}&cameraTypeCode=${camera}&endTime=2147483647${offenceSearchQuery}`)
+            .then(response => response.json())
+            .then(JsonSecondGraph => {
+                let expiationsByMonthSecondGraph = [];
+                JsonSecondGraph.forEach(ex => {
+                    let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
+                    let found = false;
+                    if (expiationsByMonthSecondGraph === null) {
+                        expiationsByMonthSecondGraph.push({
+                            monthName: monthEx,
+                            expiations: 1
+                        })
+                    } else {
+                        expiationsByMonthSecondGraph.forEach(month => {
+                            if (month.monthName === monthEx) {
+                                month.expiations += 1;
+                                found = true
+                            }
+                        });
+                        if (found === false) {
                             expiationsByMonthSecondGraph.push({
                                 monthName: monthEx,
                                 expiations: 1
                             })
-                        } else {
-                            expiationsByMonthSecondGraph.forEach(month => {
-                                if (month.monthName === monthEx) {
-                                    month.expiations += 1;
-                                    found = true
-                                }
-                            });
-                            if (found === false) {
-                                expiationsByMonthSecondGraph.push({
-                                    monthName: monthEx,
-                                    expiations: 1
-                                })
-                            }
                         }
-                    })
-                    //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
-                    // making sure its in the right order
-                    expiationsByMonthSecondGraph.sort((a, b) => {
-                        const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-                        return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
-                    })
-
-                    BuildSecondGraph(expiationsByMonthSecondGraph, secondLoc)
+                    }
                 })
-            
+                //https://dev.to/nasreenkhalid/how-to-sort-an-array-of-month-names-javascript-4c3n
+                // making sure its in the right order
+                expiationsByMonthSecondGraph.sort((a, b) => {
+                    const monthOrder = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                    return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
+                })
 
-            //#endregion
+                BuildSecondGraph(expiationsByMonthSecondGraph, secondLoc)
+            })
+        //#endregion
     }, [offenceSearchQuery, camera, firstLoc, secondLoc])
 
     //#endregion
@@ -233,10 +297,10 @@ function App() {
 
     function DisplayGraph(dataSet, svg, w, h, chartMargins, titleText) {
         //#region SVG stuff
-        console.log(dataSet);
+        
         let monthArray = Array.from(dataSet, (d, i) => d.monthName);
 
-        console.log("array: " + monthArray);
+        
 
         let totalItemsRange = d3.extent(dataSet, (d, i) => d.expiations);
         let maxTotalItems = totalItemsRange[1];
@@ -304,6 +368,10 @@ function App() {
         //#endregion
     }
 
+    
+
+
+
     return (
         <div className="container-fluid ">
             <p>
@@ -318,6 +386,7 @@ function App() {
                         <div class="card-body">
                             <h5 class="card-title">Special title treatment</h5>
                             <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <div id="map1" style={{ width: "100 %", height: "530px" }} ></div>
                         </div>
                     </div>
                 </div>
@@ -327,12 +396,11 @@ function App() {
                         <div class="card-body">
                             <h5 class="card-title">Special title treatment</h5>
                             <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <div id="map2" style={{ width: "100 %", height: "530px" }} ></div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            
         </div>
     );
 }
