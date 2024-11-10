@@ -22,6 +22,9 @@ function App() {
 
     const [firstLocationData, setFirstLocation] = useState([]);
     const [secondLocationData, setSecondLocation] = useState([]);
+
+    const [firstRoadName, setFirstRoad] = useState();
+    const [secondRoadName, setSecondRoad] = useState({});
     //#region sign in and startup stuff
     useEffect(() => {
         if (!isSignedIn) {
@@ -34,7 +37,6 @@ function App() {
                 delete window.L.mapquest.mapInstance;
             }
             if (offenceSearch && offenceSearch !== "All") {
-                
                 fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offenceSearch}`)
                     .then(response => response.json())
                     .then(data => {
@@ -48,18 +50,19 @@ function App() {
                 setOffenceSearchQuery('');
                 
             }
-
+            fetch(`http://localhost:5147/api/Get_LocationRoadName?locationId=${firstLoc}&cameraTypeCode=${camera}`)
+                .then(responce => responce.json())
+                .then(data => setFirstRoad(data));
+            fetch(`http://localhost:5147/api/Get_LocationRoadName?locationId=${secondLoc}&cameraTypeCode=${camera}`)
+                .then(responce => responce.json())
+                .then(data => setSecondRoad(data));
          
         }
     }, [isSignedIn, offenceSearch, navigate])
     //#endregion
-    var loadedFirst = useRef(false);
-    var loadedSecond = useRef(false);
-    const firstMapInstance = useRef(null);
-    const secondMapInstance = useRef(null);
 
     
-
+    //#region graph stuff
 
     //#region get data
     useEffect(() => {
@@ -322,59 +325,64 @@ function App() {
         // labels
         //#endregion
     }
+    //#endregion
 
-    
+    var loadedFirst = useRef(false);
+    var loadedSecond = useRef(false);
+    const firstMapInstance = useRef(null);
+    const secondMapInstance = useRef(null);
     useEffect(() => {
         window.L.mapquest.key = 'DlH6riSTsISPFbxxU95Cjna1S2YcTKZW';
+        //let firstName = firstRoadName.roadName;
+        console.log(`this test ${JSON.stringify(firstRoadName)}`);
+        if (firstRoadName && secondRoadName) {
+            window.L.mapquest.geocoding().geocode(`${firstRoadName.roadName}, Adelaide, SA`, createFirstMap);
+            function createFirstMap(error, response) {
+                if (loadedFirst.current === false) {
+                    loadedFirst.current = true;
+                    console.log(loadedFirst)
+                    var location = response.results[0].locations[0];
+                    var latLng = location.displayLatLng;
+                    firstMapInstance.current = window.L.mapquest.map('map1', {
+                        center: latLng,
+                        layers: window.L.mapquest.tileLayer('dark'),
+                        zoom: 14
+                    });
 
+                    var customIcon = window.L.mapquest.icons.flag({
+                        primaryColor: '#3b5998',
+                        symbol: `${firstLoc}`
+                    });
+                    window.L.marker(latLng, { icon: customIcon }).addTo(firstMapInstance.current);
 
-
-        window.L.mapquest.geocoding().geocode('Grote street/west terrace, Adelaide, SA', createFirstMap);
-        function createFirstMap(error, response) {
-            if (loadedFirst.current === false) {
-                loadedFirst.current = true;
-                console.log(loadedFirst)
-                var location = response.results[0].locations[0];
-                var latLng = location.displayLatLng;
-                firstMapInstance.current = window.L.mapquest.map('map1', {
-                    center: latLng,
-                    layers: window.L.mapquest.tileLayer('dark'),
-                    zoom: 14
-                });
-
-                var customIcon = window.L.mapquest.icons.flag({
-                    primaryColor: '#3b5998',
-                    symbol: `${firstLoc}`
-                });
-                window.L.marker(latLng, { icon: customIcon }).addTo(firstMapInstance.current);
+                }
 
             }
 
-        }
+            window.L.mapquest.geocoding().geocode(`${secondRoadName.roadName}, Adelaide, SA`, createSecondMap);
+            function createSecondMap(error, response) {
+                if (loadedSecond.current === false) {
+                    loadedSecond.current = true;
+                    console.log(loadedSecond)
+                    var location = response.results[0].locations[0];
+                    var latLng = location.displayLatLng;
+                    secondMapInstance.current = window.L.mapquest.map('map2', {
+                        center: latLng,
+                        layers: window.L.mapquest.tileLayer('dark'),
+                        zoom: 14
+                    });
 
+                    var customIcon = window.L.mapquest.icons.flag({
+                        primaryColor: '#3b5998',
+                        symbol: `${secondLoc}`
+                    });
+                    window.L.marker(latLng, { icon: customIcon }).addTo(secondMapInstance.current);
+                }
 
-        window.L.mapquest.geocoding().geocode('Greenhill road/hutt road, Adelaide, SA', createSecondMap);
-        function createSecondMap(error, response) {
-            if (loadedSecond.current === false) {
-                loadedSecond.current = true;
-                console.log(loadedSecond)
-                var location = response.results[0].locations[0];
-                var latLng = location.displayLatLng;
-                secondMapInstance.current = window.L.mapquest.map('map2', {
-                    center: latLng,
-                    layers: window.L.mapquest.tileLayer('dark'),
-                    zoom: 14
-                });
-
-                var customIcon = window.L.mapquest.icons.flag({
-                    primaryColor: '#3b5998',
-                    symbol: `${secondLoc}`
-                });
-                window.L.marker(latLng, { icon: customIcon }).addTo(secondMapInstance.current);
             }
-
         }
-    })
+        
+    }, [firstRoadName, secondRoadName])
 
 
     return (
@@ -385,7 +393,7 @@ function App() {
                 51 
             </p>
             <div className="row">
-                <div class="col-lg-6">
+                <div class="col-lg-6 ">
                     <div class="card text-white bg-secondary">
                         <svg id="graph1" width="100%" height="600px" className="border border-primary rounded p-2"> </svg>
                         <div class="card-body">
@@ -395,7 +403,7 @@ function App() {
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-lg-6  ">
                     <div class="card text-white bg-secondary ">
                         <svg id="graph2" width="100%" height="600px" className="border border-primary rounded p-2"> </svg>
                         <div class="card-body">
