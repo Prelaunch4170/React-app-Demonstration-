@@ -21,6 +21,12 @@ const Suburbs = ({ }) => {
     //https://bobbyhadz.com/blog/react-select-onchange
     const selectChanged = event => {
         setSelected(event.target.value);
+        let cameras = document.querySelectorAll('input[name="locations"]:checked');
+        console.log("cameras ")
+        //unchecking cameras
+        for (const cameraButton of cameras) {
+            cameraButton.checked = false
+        }
     }
 
     function makeReport() {
@@ -36,7 +42,7 @@ const Suburbs = ({ }) => {
                 //let location2 = document.querySelectorAll('input[type="checkbox"]:checked')[1].value
                 //navigate(`/Report/${location1}/${location2}/${encodeURIComponent(searchCamera)}/${encodeURIComponent(searchOffence)}`)
                 //to test report
-                navigate(`/Report/118/51/${encodeURIComponent(searchCamera)}/${encodeURIComponent(searchOffence)}`)
+                navigate(`/Report/118/51/I%2Fsection/${encodeURIComponent(searchOffence)}/${searchDate}`)
             }
         }
     }
@@ -65,7 +71,7 @@ const Suburbs = ({ }) => {
     
     useEffect(() => {
         if (searchOffence && searchOffence !== "All") {
-            
+            //getting offences
             fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${searchOffence}`)
                 .then(response => response.json())
                 .then(data => {
@@ -95,17 +101,13 @@ const Suburbs = ({ }) => {
         let locationsWithExpiationss = [];
 
         // Gather all fetch promises
-        
-        for (const locationa of searchSuburbD) {
-            
-        }
-         
+                 
         const fetchPromises = searchSuburbD
             .filter(location => location.cameraTypeCode === searchCamera) // Filter relevant locations
             .map(location => {
                 return fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${location.locationId}&cameraTypeCode=${searchCamera}&startTime=${searchDate}&endTime=2147483647${offenceSearchQuery}`)
                     .then(response => response.json())
-                    .then(expiationData => {
+                    .then(expiationData => {//getting the data i want
                         if (expiationData.length > 0) {
                             locationsWithExpiationss.push({
                                 locationSuburb: location.suburb,
@@ -125,8 +127,11 @@ const Suburbs = ({ }) => {
             //console.log("Final locations with expiations:", locationsWithExpiationss);
 
             locationsWithExpiationss.sort((a, b) => b.expiations - a.expiations);
-            setLocations(locationsWithExpiationss);
-            document.getElementById('loading').style.display = 'none';
+            setLocations(locationsWithExpiationss); 
+            if (document.getElementById('loading')) {
+                document.getElementById('loading').style.display = 'none';
+            }
+            
             
         });
     }, [searchSuburbD, offenceSearchQuery, searchDate, searchCamera]);
@@ -242,7 +247,8 @@ const Suburbs = ({ }) => {
 
             <div className="row mt-3">
                 <div className="col-md-4">
-                    <input type="date" className="form-control input-height" placeholder="" id="dateSelect"/>
+                    <input type="date" className="form-control input-height" placeholder="" id="dateSelect" />
+                    <label htmlFor="dateSelect">Start Date</label>
                     <div id="dateError" className="text-warning" ></div>
                 </div>
                 <div className="col-md-4 d-flex align-items-center">

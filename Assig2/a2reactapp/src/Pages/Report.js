@@ -1,4 +1,6 @@
 ﻿import logo from '../Images/sapolice.png';
+import loc1 from '../Images/loc1.jpg';
+import loc2 from '../Images/loc2.jpg';
 import '../App.css';
 import React, { useEffect, useState, useRef } from 'react';
 import SHA256 from 'crypto-js/sha256';
@@ -14,7 +16,7 @@ function App() {
     const isSignedIn = Cookies.get("isSignedIn");
     const navigate = useNavigate();
 
-    const { firstLoc, secondLoc, camera, offenceSearch } = useParams();
+    const { firstLoc, secondLoc, camera, offenceSearch, dateSearch } = useParams();
     
 
     
@@ -24,7 +26,9 @@ function App() {
     const [secondLocationData, setSecondLocation] = useState([]);
 
     const [firstRoadName, setFirstRoad] = useState();
-    const [secondRoadName, setSecondRoad] = useState({});
+    const [secondRoadName, setSecondRoad] = useState();
+
+
     //#region sign in and startup stuff
     useEffect(() => {
         if (!isSignedIn) {
@@ -36,6 +40,7 @@ function App() {
                 window.L.mapquest.mapInstance.remove();
                 delete window.L.mapquest.mapInstance;
             }
+            //getting offences from url
             if (offenceSearch && offenceSearch !== "All") {
                 fetch(`http://localhost:5147/api/Get_SearchOffencesByDescription?searchTerm=${offenceSearch}`)
                     .then(response => response.json())
@@ -60,21 +65,24 @@ function App() {
         }
     }, [isSignedIn, offenceSearch, navigate])
     //#endregion
-
+    function SignOut() {
+        Cookies.remove('isSignedIn');
+        Cookies.remove('Name');
+        window.location.reload();
+    }
     
     //#region graph stuff
 
     //#region get data
     useEffect(() => {
         console.log(offenceSearchQuery)
-        if (offenceSearchQuery !== null) {
-
-        
+        if (offenceSearchQuery !== null && firstRoadName && secondRoadName) {
 
         //#region first graph
-        fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offenceSearchQuery}`)
+            fetch(`http://localhost:5147/api/Get_ExpiationsForLocationId?locationId=${firstLoc}&cameraTypeCode=${camera}&endTime=2147483647${offenceSearchQuery}&startTime=${dateSearch}`)
             .then(response => response.json())
-            .then(JsonFirstGraph => {
+                .then(JsonFirstGraph => {
+                // whwat was done on the suburb page
                 let expiationsByMonthFirstGraph = [];
                 JsonFirstGraph.forEach(ex => {
                     let monthEx = new Date(ex.issueDate).toLocaleString('default', { month: 'long' });
@@ -106,7 +114,7 @@ function App() {
                     return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
                 })
 
-                BuildFirstGraph(expiationsByMonthFirstGraph, firstLoc)
+                BuildFirstGraph(expiationsByMonthFirstGraph, firstRoadName.roadName)
             })
             //#endregion
         //#region second graph
@@ -144,19 +152,14 @@ function App() {
                     return monthOrder.indexOf(a.monthName) - monthOrder.indexOf(b.monthName)
                 })
 
-                BuildSecondGraph(expiationsByMonthSecondGraph, secondLoc)
+                BuildSecondGraph(expiationsByMonthSecondGraph, secondRoadName.roadName)
             })
             //#endregion
         }
-    }, [offenceSearchQuery, camera, firstLoc, secondLoc])
+    }, [offenceSearchQuery, camera, firstLoc, secondLoc, firstRoadName, secondRoadName, dateSearch])
 
     //#endregion
-    function SignOut() {
-        Cookies.remove('isSignedIn');
-        Cookies.remove('Name');
-        window.location.reload();
-    }
-
+    
     function BuildFirstGraph(dataSet, titleText) {
         //#region svg setup
 
@@ -200,7 +203,7 @@ function App() {
             .attr('text-anchor', 'middle')
             .style('font-size', '1.2em')
             .style('font-weight', 'bold')
-            .text(`Location ${titleText}`);
+            .text(`${titleText}`);
             //#endregion
         DisplayGraph(dataSet, svg, w, h, chartMargins);
     }
@@ -247,7 +250,7 @@ function App() {
             .attr('text-anchor', 'middle')
             .style('font-size', '1.2em')
             .style('font-weight', 'bold')
-            .text(`Location ${titleText}`);
+            .text(`${titleText}`);
             //#endregion
         
         DisplayGraph(dataSet, svg, w, h, chartMargins);
@@ -334,7 +337,8 @@ function App() {
     useEffect(() => {
         window.L.mapquest.key = 'DlH6riSTsISPFbxxU95Cjna1S2YcTKZW';
         //let firstName = firstRoadName.roadName;
-        console.log(`this test ${JSON.stringify(firstRoadName)}`);
+        //https://developer.mapquest.com/documentation/mapquest-js/v1.3/examples/geocoding-with-custom-icons/
+        console.log(`this test ${JSON.stringify(secondRoadName)}`);
         if (firstRoadName && secondRoadName) {
             window.L.mapquest.geocoding().geocode(`${firstRoadName.roadName}, Adelaide, SA`, createFirstMap);
             function createFirstMap(error, response) {
@@ -359,6 +363,7 @@ function App() {
 
             }
 
+            //https://developer.mapquest.com/documentation/mapquest-js/v1.3/examples/geocoding-with-custom-icons/
             window.L.mapquest.geocoding().geocode(`${secondRoadName.roadName}, Adelaide, SA`, createSecondMap);
             function createSecondMap(error, response) {
                 if (loadedSecond.current === false) {
@@ -387,18 +392,38 @@ function App() {
 
     return (
         <div className="container-fluid ">
-            <p>
-             Report Page
-                118
-                51 
-            </p>
+            <h1>
+             Report
+            </h1>
             <div className="row">
                 <div class="col-lg-6 ">
                     <div class="card text-white bg-secondary">
                         <svg id="graph1" width="100%" height="600px" className="border border-primary rounded p-2"> </svg>
                         <div class="card-body">
-                            <h5 class="card-title">Special title treatment</h5>
-                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <h2 class="card-title">Grote Street/West Terrace 118</h2>
+                            <p class="card-text">
+                                The Grote Street/West Terrace intersection, is a good location for a mobile phone detection camera due
+                                to its position on a prominent road network and the high volume of traffic it accommodates.
+                                This intersection connects the city center with key suburbs and routes, such as Adelaide Airport.
+                                Placing a mobile phone detection camera here would capitalize on the steady flow of vehicles,
+                                maximising the opportunity to detect and deter mobile phone use among drivers. </p>
+                            <p class="card-text">
+                                One of the primary reasons this intersection is suitable for a detection camera is that it sits on a major, long,
+                                and relatively straight stretch of road. As Grote Street transitions into West Terrace, the wide lanes and long line
+                                of sight can subtly encourage speeding
+                                <sup><a href="https://ssti.us/2016/10/31/more-evidence-that-wider-roads-encourage-speeding/ ">1</a></sup>,
+                                which can lead to distracted driving behaviors, including mobile phone use. Drivers may feel a false sense of security
+                                in the openness of the road, tempting them to use their phones at low-risk moments, particularly during slower traffic
+                                or waiting periods at the lights Therefore, installing a detection camera here would actively dissuade this behavior,
+                                reminding drivers that mobile phone use while driving is both risky and dangerous.</p>
+                            <p class="card-text">
+                                This location was chosen over others in Adelaide as it has an unusually high amount of expiations,
+                                over the period of the data set a total of 4760 expiations occurred at this location, more than double second place,
+                                which is just up the road of West terrace. The origonal descovery of the location was based on all intersection
+                                cameras in Adelaide that had people speeding by 1-9km/h which lists Grote Street/West Terrace as first and
+                                Greenhill Road/Hutt Road with 301 and 112 expiations respectivly.</p>
+                            <img src={loc1} className="card-img-bottom" alt="test" /><br /><br />
+                            
                             <div id="map1" style={{ width: "100 %", height: "530px" }} ></div>
                         </div>
                     </div>
@@ -407,9 +432,32 @@ function App() {
                     <div class="card text-white bg-secondary ">
                         <svg id="graph2" width="100%" height="600px" className="border border-primary rounded p-2"> </svg>
                         <div class="card-body">
-                            <h5 class="card-title">Special title treatment</h5>
-                            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                            <h2 class="card-title">Greenhill Road/Hutt Road 51</h2>
+                            <p class="card-text">The Greenhill Road/Hutt Road intersection in Adelaide is an optimal location for a mobile phone
+                                detection camera, given its significant traffic volume, and proximity to attractions like the Adelaide 500 street
+                                circuit. This area sees a steady stream of drivers heading east toward the Adelaide Hills or into the city,
+                                making it a busy corridors. As a high-traffic intersection, it provides an ideal setting to maximise the deterrence
+                                and detection capabilities of a mobile phone detection camera, supporting Adelaide's road safety efforts. </p>
+                            <p class="card-text">
+                                One of the main reasons of placing a mobile phone detection camera at this location is the layout and character
+                                of Greenhill Road. It has wide lanes and relatively straight path, Greenhill Road offers a long line of sight,
+                                which can tempt drivers to check their phones, especially during slower traffic or signal stops. By strategically
+                                pacing a camera at this intersection, SAPOL can dissuade drivers from giving in to distractions, ensuring that
+                                everyone keeps their focus on the road. The presence of the detection camera will serve as a clear reminder that
+                                using a mobile phone while driving is both monitored and penalised, promoting safer driving behavior.</p>
+                            <p class="card-text">
+                                Public safety is another important factor in this area. With the intersection serving as a key connector for
+                                eastbound and citybound traffic, it is frequented by pedestrians and cyclists who also rely on driver
+                                attentiveness. Using mobile phones while driving poses a particularly high risk in such intersections,
+                                as distracted drivers may fail to notice pedestrians or cyclists crossing the road. A detection camera at
+                                Greenhill Road/Hutt Road ensures that drivers remain vigilant, reducing the chance of accidents caused by
+                                distraction and making the area safer for vulnerable road users. </p>
+                            <p class="card-text">This intersection much like Grote Street/West Terrace was chosen by looking at all the expiations from speed
+                                    cameras within adelaide and finding which expiations are from speeding related offences, with this Greenhill
+                                    Road/Hutt Road comes third, it was chosen as in second place was another intersection on West Terrace</p> 
+                            <img src={loc2} className="card-img-bottom" alt="test" /><br /><br />
                             <div id="map2" style={{ width: "100 %", height: "530px" }} ></div>
+                            
                         </div>
                     </div>
                 </div>
