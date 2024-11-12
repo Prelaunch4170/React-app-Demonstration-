@@ -29,6 +29,9 @@ function Login() {
                                 <Link className="nav-link disabled" to="/Dash"> Dash</Link>
                             </li>
                             <li className="nav-item">
+                                <Link className="nav-link disabled" to="/Report/118/51/I%2Fsection/All/1667260800"> Report</Link>
+                            </li>
+                            <li className="nav-item">
                                 <Link className="nav-link active" to="Signin">Sign In</Link>
                             </li>
                             <li className="nav-item">

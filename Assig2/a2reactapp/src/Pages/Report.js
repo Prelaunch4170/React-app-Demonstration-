@@ -422,6 +422,13 @@ function App() {
                                 which is just up the road of West terrace. The origonal descovery of the location was based on all intersection
                                 cameras in Adelaide that had people speeding by 1-9km/h which lists Grote Street/West Terrace as first and
                                 Greenhill Road/Hutt Road with 301 and 112 expiations respectivly.</p>
+                            <h4><b>Relating to Both</b></h4>
+                            <p>
+                                Another reason Grote Street/West Terrace and Greenhill Road/Hutt Road where chosen was due to noticing that alof of the data provided,
+                                many locations didn’t have any expiations such as Adelaide Airport, or didn’t have any for one of the two types of cameras I had selected
+                                as filters
+                            </p>
+
                             <img src={loc1} className="card-img-bottom" alt="test" /><br /><br />
                             
                             <div id="map1" style={{ width: "100 %", height: "530px" }} ></div>
