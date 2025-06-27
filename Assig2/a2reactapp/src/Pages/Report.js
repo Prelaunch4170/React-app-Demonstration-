@@ -335,7 +335,7 @@ function App() {
     const firstMapInstance = useRef(null);
     const secondMapInstance = useRef(null);
     useEffect(() => {
-        window.L.mapquest.key = 'DlH6riSTsISPFbxxU95Cjna1S2YcTKZW';
+        window.L.mapquest.key = '[Enter Map Quest Key]';
         //let firstName = firstRoadName.roadName;
         //https://developer.mapquest.com/documentation/mapquest-js/v1.3/examples/geocoding-with-custom-icons/
         console.log(`this test ${JSON.stringify(secondRoadName)}`);
